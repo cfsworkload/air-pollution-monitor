@@ -1,0 +1,336 @@
+[
+    {
+        "id": "8ae571d2.38fca8",
+        "type": "websocket-listener",
+        "z": "7687703.43b0b9",
+        "path": "/ws/comap",
+        "wholemsg": "false"
+    },
+    {
+        "id": "a663cfbc.91e69",
+        "type": "http request",
+        "z": "7687703.43b0b9",
+        "name": "Get token from FIWARE/Orion",
+        "method": "POST",
+        "ret": "txt",
+        "url": "https://orion.lab.fiware.org/token",
+        "x": 594,
+        "y": 132,
+        "wires": [
+            [
+                "68cbc82c.4aa728"
+            ]
+        ]
+    },
+    {
+        "id": "6ee43876.cdabf",
+        "type": "function",
+        "z": "7687703.43b0b9",
+        "name": "Prepare auth request (CHNAGE USERNAME/PASSWORD HERE)",
+        "func": "msg.headers = {\n \"Accept\": \"application/json\"\n}\n\nmsg.payload = {\n \"username\": \"myfiwareusername\",\n \"password\": \"myfiwarepassword\"\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 318,
+        "y": 41,
+        "wires": [
+            [
+                "a663cfbc.91e69"
+            ]
+        ]
+    },
+    {
+        "id": "c942b8bb.33597",
+        "type": "inject",
+        "z": "7687703.43b0b9",
+        "name": "Token renewal: EVERY 60 MINUTES",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "3600",
+        "crontab": "",
+        "once": true,
+        "x": 155,
+        "y": 133,
+        "wires": [
+            [
+                "6ee43876.cdabf"
+            ]
+        ]
+    },
+    {
+        "id": "68cbc82c.4aa728",
+        "type": "function",
+        "z": "7687703.43b0b9",
+        "name": "save token to globals",
+        "func": "token=msg.payload\ncontext.global.fitoken = token\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 787,
+        "y": 44,
+        "wires": [
+            [
+                "cd9fb73.0eb80c8"
+            ]
+        ]
+    },
+    {
+        "id": "4d8b31be.21e36",
+        "type": "http request",
+        "z": "7687703.43b0b9",
+        "name": "Retrieve FIWARE/Orion Events",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://orion.lab.fiware.org:1026/v1/queryContext?limit=300&details=on",
+        "x": 534,
+        "y": 197,
+        "wires": [
+            [
+                "f89c9764.cc4cd8"
+            ]
+        ]
+    },
+    {
+        "id": "b9a98253.76191",
+        "type": "function",
+        "z": "7687703.43b0b9",
+        "name": "Prepare FIWARE/Orion Query",
+        "func": "msg.headers = {\n \"X-Auth-Token\": context.global.fitoken,\n \"Accept\": \"application/json\"\n}\nmsg.payload = {\n \"entities\": [\n {\n \"type\": \"santander:device\",\n \"isPattern\": \"true\",\n \"id\": \".*fixed.*\"\n }\n ],\n \"attributes\" : [\"Latitud\", \"Longitud\", \"COConcentration\", \"TimeInstant\"],\n \"restriction\": {\n \"scopes\": [\n {\n \"type\": \"FIWARE::StringQuery\",\n \"value\": \"+COConcentration\"\n }\n ]\n }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 399,
+        "y": 287,
+        "wires": [
+            [
+                "4d8b31be.21e36"
+            ]
+        ]
+    },
+    {
+        "id": "cd9fb73.0eb80c8",
+        "type": "debug",
+        "z": "7687703.43b0b9",
+        "name": "",
+        "active": false,
+        "console": "true",
+        "complete": "payload",
+        "x": 947,
+        "y": 98,
+        "wires": []
+    },
+    {
+        "id": "d4915364.731f68",
+        "type": "inject",
+        "z": "7687703.43b0b9",
+        "name": "Events retrieval: EVERY 10 MINUTES",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "600",
+        "crontab": "",
+        "once": true,
+        "x": 159,
+        "y": 198,
+        "wires": [
+            [
+                "42622276.b2ddac"
+            ]
+        ]
+    },
+    {
+        "id": "f89c9764.cc4cd8",
+        "type": "function",
+        "z": "7687703.43b0b9",
+        "name": "Parse & reformat events",
+        "func": "ctxs=msg.payload.contextResponses;\nvar objs = [];\nfor (i=0; i<ctxs.length;i++) {\n    ctx = ctxs[i].contextElement;\n    var obj = {\"id\": ctx.id};\n    // store id and set of key-value pairs reflecting names and values \n    // of attributes (skipping types, metadata, etc)\n    for (j=0; j<ctx.attributes.length; j++) {\n        att = ctx.attributes[j];\n        obj[att.name]=att.value;\n    }\n    objs.push(obj);\n}\nmsg.payload = objs;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 690.5,
+        "y": 299,
+        "wires": [
+            [
+                "e18602d6.a06e68"
+            ]
+        ]
+    },
+    {
+        "id": "cd337b77.aba9",
+        "type": "http in",
+        "z": "7687703.43b0b9",
+        "name": "Web server for Map view (comap)",
+        "url": "/comap",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 141.5,
+        "y": 349,
+        "wires": [
+            [
+                "32c8496a.7095c6"
+            ]
+        ]
+    },
+    {
+        "id": "b2e73f08.e574a8",
+        "type": "http response",
+        "z": "7687703.43b0b9",
+        "name": "",
+        "x": 532.5,
+        "y": 383,
+        "wires": []
+    },
+    {
+        "id": "32c8496a.7095c6",
+        "type": "template",
+        "z": "7687703.43b0b9",
+        "name": "show map",
+        "field": "payload",
+        "template": "<!DOCTYPE html>\n<html>\n  <head>\n    <meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\">\n    <meta charset=\"utf-8\">\n    <title>CO Concentration in Santander</title>\n    <style>\n      html, body, #map-canvas {\n        height: 100%;\n        margin: 0px;\n        padding: 0px\n      }\n    </style>\n    <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\"></script>\n    <script>\n\t\tfunction initialize() {\n\t\t  var myLatlng = new google.maps.LatLng(43.46,-3.81);\n\t\t  var mapOptions = {\n\t\t    zoom: 15,\n\t\t    center: myLatlng\n\t\t  };\n\t\t  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);\n\n\n\t\t  var loc = window.location;\n          if (loc.protocol === \"https:\") {\n            newUri = \"wss:\";\n          } else {\n            newUri = \"ws:\";\n          }\n          newUri += \"//\" + loc.host + \"/ws/comap\";\n\n\t\t  var sock = new WebSocket(newUri);\n\t\t  sock.onopen = function(){ \n\t\t    console.log(\"Connected websocket\");\n\t\t    console.log(\"Sending ping..\");\n\t\t\tsock.send(\"Ping!\");\n\t\t    console.log(\"Ping sent..\");\n\t\t  };\n\t\t  sock.onerror = function(){ console.log(\"Websocket error\"); };\n\t\t  sock.onmessage = function(evt){\n\t\t    var fixed = JSON.parse(evt.data);\n\n\t\t    if (fixed.length > 0) {\n\t\t     min = max = parseFloat(fixed[0].VAL);\n\t\t\t for(var i = 0; i < fixed.length; i++) {\n\t\t\t    var val = parseFloat(fixed[i].VAL);\n\t\t\t    if (val<min) min=val;\n\t\t\t    if (val>max) max=val;\n\t\t\t }\n\n\t\t\t for(var i = 0; i < fixed.length; i++) {\n              var id = fixed[i].ID;\n              // normalize to 0..100 range\n              var val = (parseFloat(fixed[i].VAL) - min) / (max - min) * 100;\n              if (val < 10) { val = 10; }\n              var latLng = new google.maps.LatLng(parseFloat(fixed[i].LAT),parseFloat(fixed[i].LNG));\n\n              circle = new google.maps.Circle({\n                strokeColor: '#FF0000',\n                strokeOpacity: 0.8,\n                strokeWeight: 2,\n                fillColor: '#FF0000',\n                fillOpacity: 0.35,\n                map: map,\n                center: latLng,\n                radius: val\n              });\n\n              circle.setMap(map);\n              circle['title'] = id + \" : \" + fixed[i].VAL + \" (\" + fixed[i].CNT + \")\";\n              \n              google.maps.event.addListener(circle,'mouseover',function(){\n              this.getMap().getDiv().setAttribute('title', this['title']);});\n\n              google.maps.event.addListener(circle,'mouseout',function(){\n              this.getMap().getDiv().removeAttribute('title');});\n\t\t\t }\n\t\t    }\n\t\t  };\n\t\t};\n\t\t\n\t\tgoogle.maps.event.addDomListener(window, 'load', initialize);\n\n    </script>\n  </head>\n  <body>\n    <div id=\"map-canvas\"></div>\n  </body>\n</html>",
+        "x": 343.5,
+        "y": 412,
+        "wires": [
+            [
+                "b2e73f08.e574a8"
+            ]
+        ]
+    },
+    {
+        "id": "a9e27c01.cdadf8",
+        "type": "debug",
+        "z": "7687703.43b0b9",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 786.5,
+        "y": 450,
+        "wires": []
+    },
+    {
+        "id": "df79773d.efd988",
+        "type": "websocket in",
+        "z": "7687703.43b0b9",
+        "name": "WS for map view",
+        "server": "8ae571d2.38fca8",
+        "client": "",
+        "x": 83.5,
+        "y": 420,
+        "wires": [
+            [
+                "27e94bfc.e53744"
+            ]
+        ]
+    },
+    {
+        "id": "9b213699.3de3a8",
+        "type": "websocket out",
+        "z": "7687703.43b0b9",
+        "name": "WS reply",
+        "server": "8ae571d2.38fca8",
+        "client": "",
+        "x": 864.5,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "72b81d50.e7abac",
+        "type": "cloudant in",
+        "z": "7687703.43b0b9",
+        "service": "fiware-cloudantNoSQLDB",
+        "cloudant": "",
+        "name": "Query CO data from the db: STDCO",
+        "database": "stdco",
+        "search": "_idx_",
+        "design": "stdco",
+        "index": "comap",
+        "x": 440.5,
+        "y": 466,
+        "wires": [
+            [
+                "b069731c.b8e2b8"
+            ]
+        ]
+    },
+    {
+        "id": "27e94bfc.e53744",
+        "type": "function",
+        "z": "7687703.43b0b9",
+        "name": "Cloudand query",
+        "func": "msg.payload = {query: \"*:*\"};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 170.5,
+        "y": 523,
+        "wires": [
+            [
+                "72b81d50.e7abac"
+            ]
+        ]
+    },
+    {
+        "id": "b069731c.b8e2b8",
+        "type": "function",
+        "z": "7687703.43b0b9",
+        "name": "aggregate results (average CO)",
+        "func": "inp = msg.payload;\nvar outp = [];\nfor(i=0 ; i<inp.length ; i++) {\n    ielem = inp[i];\n    id = ielem.id;\n    val = parseFloat(ielem.COConcentration);\n    var found = false;\n    oelem = {\n        \"ID\": ielem.id, \n        \"LAT\": ielem.Latitud,\n        \"LNG\": ielem.Longitud,\n        \"VAL\": val,\n        \"CNT\": 1\n    };\n    for (j=0;j<outp.length;j++) {\n        if (outp[j].ID == inp[i].id) {\n            // we already have this ID in outp\n            found = true;\n            // calculate rolling average\n            cnt = outp[j].CNT;\n            outp[j].VAL = (outp[j].VAL*cnt + val) / (cnt+1);\n            outp[j].CNT = cnt+1;\n            break;\n        } \n    }\n    if (!found) {\n        // add new element to outp\n        outp.push(oelem);\n    }\n}\nmsg.payload = outp;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 639.5,
+        "y": 541,
+        "wires": [
+            [
+                "9b213699.3de3a8",
+                "a9e27c01.cdadf8"
+            ]
+        ]
+    },
+    {
+        "id": "e18602d6.a06e68",
+        "type": "splitter",
+        "z": "7687703.43b0b9",
+        "name": "split array into elements",
+        "property": "payload",
+        "x": 828,
+        "y": 179,
+        "wires": [
+            [
+                "76c3cb96.1a3b44",
+                "cd9fb73.0eb80c8"
+            ]
+        ]
+    },
+    {
+        "id": "76c3cb96.1a3b44",
+        "type": "cloudant out",
+        "z": "7687703.43b0b9",
+        "service": "fiware-cloudantNoSQLDB",
+        "cloudant": "",
+        "name": "Store in Cloudant: STDCO",
+        "database": "stdco",
+        "payonly": true,
+        "operation": "insert",
+        "x": 939,
+        "y": 250,
+        "wires": []
+    },
+    {
+        "id": "42622276.b2ddac",
+        "type": "delay",
+        "z": "7687703.43b0b9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "3",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 188,
+        "y": 287,
+        "wires": [
+            [
+                "b9a98253.76191"
+            ]
+        ]
+    }
+]
