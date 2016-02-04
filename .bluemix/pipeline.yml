@@ -1,0 +1,97 @@
+---
+stages:
+- name: build
+  inputs:
+  - type: git
+    branch: master
+  triggers:
+  - type: commit
+  jobs:
+  - name: Build
+    type: builder
+    artifact_dir: ''
+- name: deploy
+  inputs:
+  - type: job
+    stage: build
+    job: Build
+  triggers:
+  - type: stage
+  jobs:
+  - name: Deploy
+    type: deployer
+    target:
+      url: ${CF_TARGET_URL}
+      organization: ${CF_ORGANIZATION}
+      space: ${CF_SPACE}
+      application: ${CF_APP}
+    script: |
+      #!/bin/bash
+            cf create-service cloudantNoSQLDB Shared "${CF_APP}-cloudant"
+            cf create-service dashDB Entry "${CF_APP}-dashDB"
+            cf create-service erservice free "${CF_APP}-erservice"
+            sed -i 's/fiware-cloudantNoSQLDB/'${CF_APP}'-cloudant/g' defaults/flow.json
+            sed -i 's/dashDB-pf/'${CF_APP}'-dashDB/g' defaults/flow.json
+            cf push "${CF_APP}" -n "${CF_APP}" --no-start
+            cf bind-service "${CF_APP}" "${CF_APP}-cloudant"
+            cf bind-service "${CF_APP}" "${CF_APP}-dashDB"
+            cf bind-service "${CF_APP}" "${CF_APP}-erservice"
+            cloudant_username=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['cloudantNoSQLDB'][0]['credentials']['username'];"`
+            cloudant_password=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['cloudantNoSQLDB'][0]['credentials']['password'];"`
+            cloudant_url=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['cloudantNoSQLDB'][0]['credentials']['url'];"`
+            curl -u $cloudant_username:$cloudant_password -s -S -X PUT $cloudant_url/stdco
+            printf '%s\n    %s\n    %s\n    %s\n    %s\n        %s\n        %s\n        %s\n        %s\n    %s\n%s\n' '{' '"_id": "_design/stdco",' '"views": {},' '"language": "javascript",' '"indexes": {' '"comap": {' '"analyzer": "standard",' '"index": "function (doc) {\n   if(doc.COConcentration && doc.COConcentration < 99 && doc.TimeInstant) {\n    var dayAgo = new Date();\n    dayAgo.setDate(dayAgo.getDate() - 1);\n    if (Date.parse(doc.TimeInstant) > Date.parse(dayAgo)) {\n      index(\"COConcentration\", doc.COConcentration);\n    }\n  }\n}"' '}' '}' '}'>search_index.json
+            curl -X PUT -u $cloudant_username:$cloudant_password $cloudant_url/stdco/_design/stdco -d @search_index.json
+            curl http://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/linuxx64_odbc_cli.tar.gz|tar xvz
+            export LD_LIBRARY_PATH=`pwd`/clidriver/lib
+            dsn=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['dashDB'][0]['credentials']['dsn'];"`
+            #dashdb_database=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['dashDB'][0]['credentials']['db'];"`
+            #dashdb_hostname=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['dashDB'][0]['credentials']['hostname'];"`
+            #dashdb_port=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['dashDB'][0]['credentials']['port'];"`            
+            printf '%s' 'CREATE TABLE "STDCODB"("ID" VARCHAR(128),"TIMEINSTANT" TIMESTAMP,"LATITUD" FLOAT,"LONGITUD" FLOAT,"COCONCENTRATION" FLOAT);'>SDTCODB.sql
+            #export IBM_DB_HOME=`pwd`/clidriver
+            #export PATH=$IBM_DB_HOME/bin:$IBM_DB_HOME/adm:$IBM_DB_HOME/lib:./clidriver/bin:./clidriver/adm:./clidriver/lib:$PATH
+            #export LD_LIBRARY_PATH=$IBM_DB_HOME/lib:./clidriver/lib
+            #export DYLD_LIBRARY_PATH=$IBM_DB_HOME/lib:./clidriver/lib:./clidriver/lib/icc
+            echo 0
+            uname -a
+            echo 01
+            lsb_release -a
+            echo 1
+            sudo apt-get update -y
+            echo 1a
+            sudo apt-get install -y libxml2
+            echo 1b
+            ./clidriver/bin/db2cli execsql -connstring "$dsn" -inputsql ./SDTCODB.sql
+            echo 3
+            erservice_user=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['erservice'][0]['credentials']['userid'];"`
+            erservice_password=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['erservice'][0]['credentials']['password'];"`
+            erservice_host=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['erservice'][0]['credentials']['url'];"`
+            erservice_host=${erservice_host#https://}
+            echo erservice_user:$erservice_user
+            echo erservice_password:$erservice_password
+            echo erservice_host:$erservice_host
+            echo "Connection setup"
+            curl --insecure -i -X POST --cookie-jar newcookies.txt  -H "Content-Type:application/json" -d "{\"bundleUri\":\"$cloudant_url\"}" https://$erservice_user:$erservice_password@$erservice_host/ers/v1/connection
+            echo "Creating package"
+            epackage_id=`echo '{"name":"fipkg"}' | curl --insecure -X POST -sb newcookies.txt https://${erservice_host}/ers/v1/packages -d @- --header "Content-Type: application/vnd.ibm.ers.v1.packages+json"| python -c "import json,sys;obj=json.load(sys.stdin);print obj['_bundleID'];"`
+            echo "Epackage_id:$epackage_id"
+            dash_jdbc_url=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['dashDB'][0]['credentials']['jdbcurl']"`
+            echo "dash_jdbc_url:$dash_jdbc_url"
+            dashdb_username=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['dashDB'][0]['credentials']['username'];"`
+            dashdb_password=`cf env ${CF_APP}|awk '/System-Provided:/{f=1;next} /VCAP_APPLICATION/{f=0} f'|head -n -2| python -c "import json,sys;obj=json.load(sys.stdin);print obj['VCAP_SERVICES']['dashDB'][0]['credentials']['password'];"`
+            echo "Create datasource"
+            echo {\"name\": \"datasource\", \"driverUrl\": \"${dash_jdbc_url}\", \"userName\": \"${dashdb_username}\", \"userPassword\": \"${dashdb_password}\", \"driverClass\": \"com.ibm.db2.jcc.DB2Driver\"} | curl --insecure -X POST -sb newcookies.txt https://${erservice_host}/ers/v1/packages/${epackage_id}/datasources -d @- --header "Content-Type: application/vnd.ibm.ers.v1.datasources+json"
+            echo "Create model object"
+            emodel_id=`echo '{"name": "fipkg_model"}' | curl --insecure -X POST -sb newcookies.txt https://${erservice_host}/ers/v1/packages/${epackage_id}/models -d @- --header "Content-Type: application/vnd.ibm.ers.v1.models+json" | python -c "import json,sys;obj=json.load(sys.stdin);print obj['_bundleID'];"`
+            echo "emodel_id:$emodel_id"
+            curl --insecure -X POST -sb newcookies.txt https://${erservice_host}/ers/v1/models/${emodel_id}/model -F upload=@fipkg_model_spec.xml --header "Content-Type: multipart/form-data"
+            echo "Create report definition object"
+            edifinition_id=`echo {\"reportPackage\": \"${emodel_id}\", \"name\": \"fidef\"} | curl --insecure -X POST -sb newcookies.txt https://${erservice_host}/ers/v1/packages/${epackage_id}/definitions --header 'Content-Type: application/vnd.ibm.ers.v1.definitions+json' -d @- | python -c "import json,sys;obj=json.load(sys.stdin);print obj['_bundleID'];"`
+            echo "edifinition_id:$edifinition_id"
+            sed -i 's/ERS_MODEL_ID/'${emodel_id}'/' fidef_spec.xml
+            echo "Populate report definition specification"
+            cat fidef_spec.xml | curl --insecure -X PUT -sb newcookies.txt https://${erservice_host}/ers/v1/definitions/${edifinition_id}/specification -d @- --header "Content-Type: application/xml"
+            cf set-env ${CF_APP} NODE_RED_USERNAME fibluemix@gmail.com
+            cf set-env ${CF_APP} NODE_RED_PASSWORD f1bluemix
+            cf start ${CF_APP}

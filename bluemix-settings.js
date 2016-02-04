@@ -49,7 +49,12 @@ var settings = module.exports = {
     // Serve up the welcome page
     httpStatic: path.join(__dirname,"public"),
 
-     functionGlobalContext: { VCAP_SERVICES: JSON.parse(process.env.VCAP_SERVICES)},
+     functionGlobalContext: {
+     	VCAP_SERVICES: JSON.parse(process.env.VCAP_SERVICES),
+     	URL: require('url'),
+        HTTPS: require('https'),
+        HTTP: require('http')        
+     },
 
     storageModule: require("./couchstorage")
 }
@@ -79,7 +84,7 @@ settings.couchAppname = VCAP_APPLICATION['application_name'];
 
 
 var storageServiceName = process.env.NODE_RED_STORAGE_NAME || new RegExp("^"+settings.couchAppname+".cloudantNoSQLDB");
-var couchService = appEnv.getService(storageServiceName);
+var couchService = VCAP_SERVICES.cloudantNoSQLDB[0];
 
 if (!couchService) {
     console.log("Failed to find Cloudant service");

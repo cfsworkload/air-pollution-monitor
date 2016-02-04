@@ -1,336 +1,799 @@
 [
     {
+      "type": "tab",
+      "id": "7687703.43b0b9",
+      "label": "Fiware: COConcentration"
+    },
+    {
+      "type": "tab",
+      "label": "Login",
+      "id": "62906b0d.3c9e8c",
+      "z": "62906b0d.3c9e8c"
+    },
+    {
+      "type": "tab",
+      "label": "TEST",
+      "id": "5a8ccc5c.a57334",
+      "z": "5a8ccc5c.a57334"
+    },
+    {
         "id": "8ae571d2.38fca8",
-        "type": "websocket-listener",
-        "z": "7687703.43b0b9",
         "path": "/ws/comap",
-        "wholemsg": "false"
-    },
-    {
-        "id": "a663cfbc.91e69",
-        "type": "http request",
-        "z": "7687703.43b0b9",
-        "name": "Get token from FIWARE/Orion",
-        "method": "POST",
-        "ret": "txt",
-        "url": "https://orion.lab.fiware.org/token",
-        "x": 594,
-        "y": 132,
-        "wires": [
-            [
-                "68cbc82c.4aa728"
-            ]
-        ]
-    },
-    {
-        "id": "6ee43876.cdabf",
-        "type": "function",
-        "z": "7687703.43b0b9",
-        "name": "Prepare auth request (CHNAGE USERNAME/PASSWORD HERE)",
-        "func": "msg.headers = {\n \"Accept\": \"application/json\"\n}\n\nmsg.payload = {\n \"username\": \"myfiwareusername\",\n \"password\": \"myfiwarepassword\"\n}\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 318,
-        "y": 41,
-        "wires": [
-            [
-                "a663cfbc.91e69"
-            ]
-        ]
-    },
-    {
-        "id": "c942b8bb.33597",
-        "type": "inject",
-        "z": "7687703.43b0b9",
-        "name": "Token renewal: EVERY 60 MINUTES",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "3600",
-        "crontab": "",
-        "once": true,
-        "x": 155,
-        "y": 133,
-        "wires": [
-            [
-                "6ee43876.cdabf"
-            ]
-        ]
-    },
-    {
-        "id": "68cbc82c.4aa728",
-        "type": "function",
-        "z": "7687703.43b0b9",
-        "name": "save token to globals",
-        "func": "token=msg.payload\ncontext.global.fitoken = token\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 787,
-        "y": 44,
-        "wires": [
-            [
-                "cd9fb73.0eb80c8"
-            ]
-        ]
+        "type": "websocket-listener",
+        "wholemsg": "false",
+        "z": "7687703.43b0b9"
     },
     {
         "id": "4d8b31be.21e36",
-        "type": "http request",
-        "z": "7687703.43b0b9",
-        "name": "Retrieve FIWARE/Orion Events",
         "method": "POST",
+        "name": "Retrieve FIWARE/Orion Events",
         "ret": "obj",
+        "type": "http request",
         "url": "http://orion.lab.fiware.org:1026/v1/queryContext?limit=300&details=on",
-        "x": 534,
-        "y": 197,
         "wires": [
             [
                 "f89c9764.cc4cd8"
             ]
-        ]
+        ],
+        "x": 534,
+        "y": 197,
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "b9a98253.76191",
-        "type": "function",
-        "z": "7687703.43b0b9",
-        "name": "Prepare FIWARE/Orion Query",
         "func": "msg.headers = {\n \"X-Auth-Token\": context.global.fitoken,\n \"Accept\": \"application/json\"\n}\nmsg.payload = {\n \"entities\": [\n {\n \"type\": \"santander:device\",\n \"isPattern\": \"true\",\n \"id\": \".*fixed.*\"\n }\n ],\n \"attributes\" : [\"Latitud\", \"Longitud\", \"COConcentration\", \"TimeInstant\"],\n \"restriction\": {\n \"scopes\": [\n {\n \"type\": \"FIWARE::StringQuery\",\n \"value\": \"+COConcentration\"\n }\n ]\n }\n}\nreturn msg;",
-        "outputs": 1,
+        "id": "b9a98253.76191",
+        "name": "Prepare FIWARE/Orion Query",
         "noerr": 0,
-        "x": 399,
-        "y": 287,
+        "outputs": 1,
+        "type": "function",
         "wires": [
             [
                 "4d8b31be.21e36"
             ]
-        ]
+        ],
+        "x": 399,
+        "y": 287,
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "cd9fb73.0eb80c8",
-        "type": "debug",
-        "z": "7687703.43b0b9",
-        "name": "",
         "active": false,
-        "console": "true",
         "complete": "payload",
+        "console": "true",
+        "id": "cd9fb73.0eb80c8",
+        "name": "",
+        "type": "debug",
+        "wires": [],
         "x": 947,
         "y": 98,
-        "wires": []
+        "z": "7687703.43b0b9"
     },
     {
+        "crontab": "",
         "id": "d4915364.731f68",
-        "type": "inject",
-        "z": "7687703.43b0b9",
         "name": "Events retrieval: EVERY 10 MINUTES",
-        "topic": "",
+        "once": true,
         "payload": "",
         "payloadType": "date",
         "repeat": "600",
-        "crontab": "",
-        "once": true,
-        "x": 159,
-        "y": 198,
+        "topic": "",
+        "type": "inject",
         "wires": [
             [
                 "42622276.b2ddac"
             ]
-        ]
+        ],
+        "x": 159,
+        "y": 198,
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "f89c9764.cc4cd8",
-        "type": "function",
-        "z": "7687703.43b0b9",
-        "name": "Parse & reformat events",
         "func": "ctxs=msg.payload.contextResponses;\nvar objs = [];\nfor (i=0; i<ctxs.length;i++) {\n    ctx = ctxs[i].contextElement;\n    var obj = {\"id\": ctx.id};\n    // store id and set of key-value pairs reflecting names and values \n    // of attributes (skipping types, metadata, etc)\n    for (j=0; j<ctx.attributes.length; j++) {\n        att = ctx.attributes[j];\n        obj[att.name]=att.value;\n    }\n    objs.push(obj);\n}\nmsg.payload = objs;\n\nreturn msg;",
-        "outputs": 1,
+        "id": "f89c9764.cc4cd8",
+        "name": "Parse & reformat events",
         "noerr": 0,
-        "x": 690.5,
-        "y": 299,
+        "outputs": 1,
+        "type": "function",
         "wires": [
             [
                 "e18602d6.a06e68"
             ]
-        ]
+        ],
+        "x": 690.5,
+        "y": 299,
+        "z": "7687703.43b0b9"
     },
     {
         "id": "cd337b77.aba9",
-        "type": "http in",
-        "z": "7687703.43b0b9",
-        "name": "Web server for Map view (comap)",
-        "url": "/comap",
         "method": "get",
+        "name": "Web server for Map view (comap)",
         "swaggerDoc": "",
-        "x": 141.5,
-        "y": 349,
+        "type": "http in",
+        "url": "/comap",
         "wires": [
             [
                 "32c8496a.7095c6"
             ]
-        ]
+        ],
+        "x": 141.5,
+        "y": 349,
+        "z": "7687703.43b0b9"
     },
     {
         "id": "b2e73f08.e574a8",
-        "type": "http response",
-        "z": "7687703.43b0b9",
         "name": "",
+        "type": "http response",
+        "wires": [],
         "x": 532.5,
         "y": 383,
-        "wires": []
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "32c8496a.7095c6",
-        "type": "template",
-        "z": "7687703.43b0b9",
-        "name": "show map",
         "field": "payload",
+        "id": "32c8496a.7095c6",
+        "name": "show map",
         "template": "<!DOCTYPE html>\n<html>\n  <head>\n    <meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\">\n    <meta charset=\"utf-8\">\n    <title>CO Concentration in Santander</title>\n    <style>\n      html, body, #map-canvas {\n        height: 100%;\n        margin: 0px;\n        padding: 0px\n      }\n    </style>\n    <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\"></script>\n    <script>\n\t\tfunction initialize() {\n\t\t  var myLatlng = new google.maps.LatLng(43.46,-3.81);\n\t\t  var mapOptions = {\n\t\t    zoom: 15,\n\t\t    center: myLatlng\n\t\t  };\n\t\t  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);\n\n\n\t\t  var loc = window.location;\n          if (loc.protocol === \"https:\") {\n            newUri = \"wss:\";\n          } else {\n            newUri = \"ws:\";\n          }\n          newUri += \"//\" + loc.host + \"/ws/comap\";\n\n\t\t  var sock = new WebSocket(newUri);\n\t\t  sock.onopen = function(){ \n\t\t    console.log(\"Connected websocket\");\n\t\t    console.log(\"Sending ping..\");\n\t\t\tsock.send(\"Ping!\");\n\t\t    console.log(\"Ping sent..\");\n\t\t  };\n\t\t  sock.onerror = function(){ console.log(\"Websocket error\"); };\n\t\t  sock.onmessage = function(evt){\n\t\t    var fixed = JSON.parse(evt.data);\n\n\t\t    if (fixed.length > 0) {\n\t\t     min = max = parseFloat(fixed[0].VAL);\n\t\t\t for(var i = 0; i < fixed.length; i++) {\n\t\t\t    var val = parseFloat(fixed[i].VAL);\n\t\t\t    if (val<min) min=val;\n\t\t\t    if (val>max) max=val;\n\t\t\t }\n\n\t\t\t for(var i = 0; i < fixed.length; i++) {\n              var id = fixed[i].ID;\n              // normalize to 0..100 range\n              var val = (parseFloat(fixed[i].VAL) - min) / (max - min) * 100;\n              if (val < 10) { val = 10; }\n              var latLng = new google.maps.LatLng(parseFloat(fixed[i].LAT),parseFloat(fixed[i].LNG));\n\n              circle = new google.maps.Circle({\n                strokeColor: '#FF0000',\n                strokeOpacity: 0.8,\n                strokeWeight: 2,\n                fillColor: '#FF0000',\n                fillOpacity: 0.35,\n                map: map,\n                center: latLng,\n                radius: val\n              });\n\n              circle.setMap(map);\n              circle['title'] = id + \" : \" + fixed[i].VAL + \" (\" + fixed[i].CNT + \")\";\n              \n              google.maps.event.addListener(circle,'mouseover',function(){\n              this.getMap().getDiv().setAttribute('title', this['title']);});\n\n              google.maps.event.addListener(circle,'mouseout',function(){\n              this.getMap().getDiv().removeAttribute('title');});\n\t\t\t }\n\t\t    }\n\t\t  };\n\t\t};\n\t\t\n\t\tgoogle.maps.event.addDomListener(window, 'load', initialize);\n\n    </script>\n  </head>\n  <body>\n    <div id=\"map-canvas\"></div>\n  </body>\n</html>",
-        "x": 343.5,
-        "y": 412,
+        "type": "template",
         "wires": [
             [
                 "b2e73f08.e574a8"
             ]
-        ]
+        ],
+        "x": 343.5,
+        "y": 412,
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "a9e27c01.cdadf8",
-        "type": "debug",
-        "z": "7687703.43b0b9",
-        "name": "",
-        "active": true,
-        "console": "false",
+        "active": false,
         "complete": "false",
+        "console": "false",
+        "id": "a9e27c01.cdadf8",
+        "name": "",
+        "type": "debug",
+        "wires": [],
         "x": 786.5,
         "y": 450,
-        "wires": []
+        "z": "7687703.43b0b9"
     },
     {
+        "client": "",
         "id": "df79773d.efd988",
-        "type": "websocket in",
-        "z": "7687703.43b0b9",
         "name": "WS for map view",
         "server": "8ae571d2.38fca8",
-        "client": "",
-        "x": 83.5,
-        "y": 420,
+        "type": "websocket in",
         "wires": [
             [
                 "27e94bfc.e53744"
             ]
-        ]
+        ],
+        "x": 83.5,
+        "y": 420,
+        "z": "7687703.43b0b9"
     },
     {
+        "client": "",
         "id": "9b213699.3de3a8",
-        "type": "websocket out",
-        "z": "7687703.43b0b9",
         "name": "WS reply",
         "server": "8ae571d2.38fca8",
-        "client": "",
+        "type": "websocket out",
+        "wires": [],
         "x": 864.5,
         "y": 560,
-        "wires": []
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "72b81d50.e7abac",
-        "type": "cloudant in",
-        "z": "7687703.43b0b9",
-        "service": "fiware-cloudantNoSQLDB",
         "cloudant": "",
-        "name": "Query CO data from the db: STDCO",
         "database": "stdco",
-        "search": "_idx_",
         "design": "stdco",
+        "id": "72b81d50.e7abac",
         "index": "comap",
-        "x": 440.5,
-        "y": 466,
+        "name": "Query CO data from the db: STDCO",
+        "search": "_idx_",
+        "service": "fiware-cloudantNoSQLDB",
+        "type": "cloudant in",
         "wires": [
             [
                 "b069731c.b8e2b8"
             ]
-        ]
+        ],
+        "x": 440.5,
+        "y": 466,
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "27e94bfc.e53744",
-        "type": "function",
-        "z": "7687703.43b0b9",
-        "name": "Cloudand query",
         "func": "msg.payload = {query: \"*:*\"};\nreturn msg;",
-        "outputs": 1,
+        "id": "27e94bfc.e53744",
+        "name": "Cloudand query",
         "noerr": 0,
-        "x": 170.5,
-        "y": 523,
+        "outputs": 1,
+        "type": "function",
         "wires": [
             [
                 "72b81d50.e7abac"
             ]
-        ]
+        ],
+        "x": 170.5,
+        "y": 523,
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "b069731c.b8e2b8",
-        "type": "function",
-        "z": "7687703.43b0b9",
-        "name": "aggregate results (average CO)",
         "func": "inp = msg.payload;\nvar outp = [];\nfor(i=0 ; i<inp.length ; i++) {\n    ielem = inp[i];\n    id = ielem.id;\n    val = parseFloat(ielem.COConcentration);\n    var found = false;\n    oelem = {\n        \"ID\": ielem.id, \n        \"LAT\": ielem.Latitud,\n        \"LNG\": ielem.Longitud,\n        \"VAL\": val,\n        \"CNT\": 1\n    };\n    for (j=0;j<outp.length;j++) {\n        if (outp[j].ID == inp[i].id) {\n            // we already have this ID in outp\n            found = true;\n            // calculate rolling average\n            cnt = outp[j].CNT;\n            outp[j].VAL = (outp[j].VAL*cnt + val) / (cnt+1);\n            outp[j].CNT = cnt+1;\n            break;\n        } \n    }\n    if (!found) {\n        // add new element to outp\n        outp.push(oelem);\n    }\n}\nmsg.payload = outp;\nreturn msg;",
-        "outputs": 1,
+        "id": "b069731c.b8e2b8",
+        "name": "aggregate results (average CO)",
         "noerr": 0,
-        "x": 639.5,
-        "y": 541,
+        "outputs": 1,
+        "type": "function",
         "wires": [
             [
                 "9b213699.3de3a8",
                 "a9e27c01.cdadf8"
             ]
-        ]
+        ],
+        "x": 639.5,
+        "y": 541,
+        "z": "7687703.43b0b9"
     },
     {
         "id": "e18602d6.a06e68",
-        "type": "splitter",
-        "z": "7687703.43b0b9",
         "name": "split array into elements",
         "property": "payload",
-        "x": 828,
-        "y": 179,
+        "type": "splitter",
         "wires": [
             [
                 "76c3cb96.1a3b44",
-                "cd9fb73.0eb80c8"
+                "cd9fb73.0eb80c8",
+                "2376d4c5.f1c2cc"
             ]
-        ]
+        ],
+        "x": 828,
+        "y": 179,
+        "z": "7687703.43b0b9"
     },
     {
-        "id": "76c3cb96.1a3b44",
-        "type": "cloudant out",
-        "z": "7687703.43b0b9",
-        "service": "fiware-cloudantNoSQLDB",
         "cloudant": "",
-        "name": "Store in Cloudant: STDCO",
         "database": "stdco",
-        "payonly": true,
+        "id": "76c3cb96.1a3b44",
+        "name": "Store in Cloudant: STDCO",
         "operation": "insert",
+        "payonly": true,
+        "service": "fiware-cloudantNoSQLDB",
+        "type": "cloudant out",
+        "wires": [],
         "x": 939,
         "y": 250,
-        "wires": []
+        "z": "7687703.43b0b9"
     },
     {
+        "drop": false,
         "id": "42622276.b2ddac",
-        "type": "delay",
-        "z": "7687703.43b0b9",
         "name": "",
         "pauseType": "delay",
-        "timeout": "3",
-        "timeoutUnits": "seconds",
-        "rate": "1",
-        "rateUnits": "second",
         "randomFirst": "1",
         "randomLast": "5",
         "randomUnits": "seconds",
-        "drop": false,
-        "x": 188,
-        "y": 287,
+        "rate": "1",
+        "rateUnits": "second",
+        "timeout": "3",
+        "timeoutUnits": "seconds",
+        "type": "delay",
         "wires": [
             [
                 "b9a98253.76191"
             ]
-        ]
+        ],
+        "x": 148,
+        "y": 287,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "id": "97c86b96.5df268",
+        "name": "",
+        "service": "dashDB-pf",
+        "table": "STDCODB",
+        "type": "dashDB out",
+        "wires": [],
+        "x": 1001,
+        "y": 309,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "func": "i = msg.payload;\nmsg.payload = {\n  \"ID\": i.id,\n  \"LATITUD\": parseFloat(i.Latitud),\n  \"LONGITUD\": parseFloat(i.Longitud),\n  \"TIMEINSTANT\": i.TimeInstant.slice(0, 19).replace('T', ' '),\n  \"COCONCENTRATION\": parseFloat(i.COConcentration)\n};\nreturn msg;\n",
+        "id": "2376d4c5.f1c2cc",
+        "name": "transofrm to SQL-typed objects",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "97c86b96.5df268"
+            ]
+        ],
+        "x": 904,
+        "y": 379,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "id": "54924075.30ad78",
+        "method": "post",
+        "name": "",
+        "swaggerDoc": "",
+        "type": "http in",
+        "url": "/auth",
+        "wires": [
+            [
+                "ffae7351.f4e1d8"
+            ]
+        ],
+        "x": 95,
+        "y": 30,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "func": "token = msg.payload.token;\nif (token !== context.global.fitoken){\n    node.warn(\"Token: \" + token + \" != \" + context.global.fitoken);\n    msg.statusCode = 401;\n}\nreturn msg;",
+        "id": "ffae7351.f4e1d8",
+        "name": "validate token",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "2ff3a389.2becdc",
+                "3e380e40.c1c7f2"
+            ]
+        ],
+        "x": 303,
+        "y": 29,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "id": "2ff3a389.2becdc",
+        "name": "",
+        "type": "http response",
+        "wires": [],
+        "x": 701,
+        "y": 26.5,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "id": "8d31d818.72ce28",
+        "method": "post",
+        "name": "",
+        "swaggerDoc": "",
+        "type": "http in",
+        "url": "/login",
+        "wires": [
+            [
+                "221f9865.dde068"
+            ]
+        ],
+        "x": 179,
+        "y": 675,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "func": "body=msg.payload;\nnode.log(JSON.stringify(body));\ncontext.global.user = body.user;\ncontext.global.password = body.password;\n\nmsg.headers = {\n \"Accept\": \"application/json\"\n}\n\nmsg.payload = {\n \"username\": body.user,\n \"password\": body.password\n}\n\n\nreturn msg;",
+        "id": "221f9865.dde068",
+        "name": "save credentials to globals",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "636f6b02.9c9094"
+            ]
+        ],
+        "x": 462,
+        "y": 676.5,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "id": "4a2acb53.b5d534",
+        "name": "",
+        "type": "http response",
+        "wires": [],
+        "x": 1077,
+        "y": 636.5,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "id": "636f6b02.9c9094",
+        "method": "POST",
+        "name": "Get token from FIWARE/Orion",
+        "ret": "txt",
+        "type": "http request",
+        "url": "https://orion.lab.fiware.org/token",
+        "wires": [
+            [
+                "28197684.d7e68a"
+            ]
+        ],
+        "x": 626,
+        "y": 846.5,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "func": "token=msg.payload;\ncontext.global.fitoken = token;\ncontext.global.firstTime = true;\nreturn msg;",
+        "id": "28197684.d7e68a",
+        "name": "save token to globals",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "2c191881.d3e6e8",
+                "4a2acb53.b5d534",
+                "b9a98253.76191"
+            ]
+        ],
+        "x": 882,
+        "y": 751.5,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "active": true,
+        "complete": "payload",
+        "console": "true",
+        "id": "2c191881.d3e6e8",
+        "name": "",
+        "type": "debug",
+        "wires": [],
+        "x": 1079,
+        "y": 900.5,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "func": "if (!context.global.firstTime){\n    return msg;\n}else{\n    context.global.firstTime = false;\n}",
+        "id": "3e380e40.c1c7f2",
+        "name": "",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "b9a98253.76191"
+            ]
+        ],
+        "x": 504,
+        "y": 115,
+        "z": "7687703.43b0b9"
+    },
+    {
+        "id": "f4684f34.33c95",
+        "method": "POST",
+        "name": "Get token from FIWARE/Orion",
+        "ret": "txt",
+        "type": "http request",
+        "url": "https://orion.lab.fiware.org/token",
+        "wires": [
+            [
+                "b9d87dde.6c10c"
+            ]
+        ],
+        "x": 731,
+        "y": 354,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "func": "msg.headers = {\n \"Accept\": \"application/json\"\n}\n\nmsg.payload = {\n \"username\": context.global.user,\n \"password\": context.global.password\n}\n\nreturn msg;",
+        "id": "854485e6.79536",
+        "name": "Prepare auth request (CHNAGE USERNAME/PASSWORD HERE)",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "f4684f34.33c95"
+            ]
+        ],
+        "x": 455,
+        "y": 263,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "crontab": "",
+        "id": "9b84560c.7ecde8",
+        "name": "Token renewal: EVERY 60 MINUTES",
+        "once": true,
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "3600",
+        "topic": "",
+        "type": "inject",
+        "wires": [
+            [
+                "854485e6.79536"
+            ]
+        ],
+        "x": 243,
+        "y": 351,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "func": "token=msg.payload\ncontext.global.fitoken = token\nreturn msg;",
+        "id": "b9d87dde.6c10c",
+        "name": "save token to globals",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "a3e0bc5e.d17cc8"
+            ]
+        ],
+        "x": 924,
+        "y": 266,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "active": false,
+        "complete": "payload",
+        "console": "true",
+        "id": "a3e0bc5e.d17cc8",
+        "name": "",
+        "type": "debug",
+        "wires": [],
+        "x": 1084,
+        "y": 320,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "func": "//var services = JSON.parse(context.global.VCAP_SERVICES);\nnode.log(\"context.global.VCAP_SERVICES: \" + context.global.VCAP_SERVICES)\nvar services = context.global.VCAP_SERVICES\nvar bundleUri = null;\nvar reportingUri = \"\";\nvar reportingUserId = \"\";\nvar reportingPassword = \"\";\n\nObject.keys(services).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tvar credentials = services[key][0]['credentials'];\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = credentials['url'];\n\t\treportingUserId = credentials['userid'];\n\t\treportingPassword = credentials['password'];\n\t}\n\telse if ((name.indexOf(\"CLOUDANT\") !== -1) && (bundleUri === null)) {\n\t\tbundleUri = credentials['url'];\n\t}\n});\n\n// ERS connection constructor\nfunction callERS(ersUri, username, password, bundleUri) {\n\tvar url = context.global.URL;\n\tvar ersContextRoot = null;\n\tvar cookieJar = \"\";\n\t// return appropriate connection depending on whether reporting\n\t// service is listening on http or https\n\tvar getConnection = function(uri) {\n\t\tif (url.parse(uri).protocol === 'https:') {\n\t\t\treturn context.global.HTTPS;\n\t\t} else {\n\t\t\treturn context.global.HTTP;\n\t\t}\n\t};\n\t// returns the host name of the reporting service\n\tvar getHost = function(uri) {\n\t\treturn url.parse(uri).hostname;\n\t};\n\t// returns the port of the reporting service\n\tvar getPort = function(uri) {\n\t\tif (url.parse(uri).protocol === 'https:') {\n\t\t\treturn (url.parse(uri).port || 443);\n\t\t} else {\n\t\t\treturn (url.parse(uri).port || 80);\n\t\t}\n\t};\n\t// set the context root that will be used as a prefix on URLs generated by ERS.\n\tthis.setContextRoot = function(contextRoot) {\n\t\tersContextRoot = contextRoot;\n\t};\n\t\t\n\t// setup connection information for reporting service\n\tvar ersHost = getHost(ersUri);\n\tvar ersPort = getPort(ersUri);\n\tvar ersConnection = getConnection(ersUri);\n\tvar ersAuth = username + ':' + password;\n\tvar ersBundleUri = bundleUri;\n\t// connects to the reporting service and retrieves a connection id\n\t// for the specified bundle uri. If a callback has been specified,\n\t// the original request and response are provided so that a retry\n\t// of the original request can be attempted.\n\tthis.doConnect = function(clientRequest, clientResponse, callback, ers) {\n\t\tif(cookieJar !== \"\"){\n\t\t\tcookieJar = \"\";\n\t\t}\n\t\tvar responseCallback = function(ersResponse) {\n\t\t\tvar str = '';\n            \n\t\t\tersResponse.on('data', function(chunk) {\n\t\t\t\tstr += chunk;\n\t\t\t});\n            \n\t\t\tersResponse.on('end', function() {\n\t\t\t\tvar ersHeaders = ersResponse.headers;\n\t\t\t\tfor ( var headerName in ersHeaders) {\n\t\t\t\t\tvar headerValue = ersHeaders[headerName];\n\t\t\t\t\tif (headerName === 'set-cookie') {\n\t\t\t\t\t\tfor (idx = 0; idx < headerValue.length; idx++) {\t\t\t\t\t\t\t\n\t\t\t\t\t\t\tvar cookie = headerValue[idx].substring(0, headerValue[idx].indexOf(';') + 1);\n\t\t\t\t\t\t\tcookieJar += cookie;\n\t\t\t\t\t\t}\n\t\t\t\t\t} \n\t\t\t\t}\n\t\t\t\t\n\t\t\t\tif (callback) {\n\t\t\t\t\treturn callback(ersResponse.statusCode, clientRequest, clientResponse, ers);\n\t\t\t\t}\n\t\t\t});\n\t\t};\n\t\tvar options = {\n\t\t\thost : ersHost,\n\t\t\tport : ersPort,\n\t\t\tpath : '/ers/v1/connection',\n\t\t\tmethod : 'POST',\n\t\t\tauth : ersAuth\n\t\t};\n\t\t\n\t\tvar ersRequest = ersConnection.request(options, responseCallback);\n\t\tnode.log(ersRequest);\n\t\t\n\t\tersRequest.setHeader('Content-Type', 'application/json');\n\t\tersRequest.on('error', function(e) {\n\t\t\tif (callback) {\n\t\t\t\treturn callback(503, clientRequest, clientResponse, ers);\n\t\t\t}\n\t\t});\n\t\tersRequest.write(\"{}\");\n\t\tersRequest.end();\n\t};\n\n\tthis.getCookieJar = function(){\n\t\treturn cookieJar;\n\t};\n}\n\nvar ersConnection = new callERS(reportingUri, reportingUserId, reportingPassword, bundleUri);\nersConnection.doConnect(null, null, function(statusCode, clientRequest, clientResponse, ers){\n    context.global.cookie = ersConnection.getCookieJar();\n    msg.headers = {\"Cookie\": ersConnection.getCookieJar()}\n    msg.url = reportingUri + \"/ers/v1/definitions\";\n    node.error(\"URL: \" + msg.url);\n    node.error(\"COOKIE: \" + context.global.cookie);\n    return msg;\n}, null);\n\n//must return msg here as well although it doesn't contain cookies yet\nreturn msg;",
+        "id": "d3c6dfc4.2c392",
+        "name": "create-connection",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "1099160.fef66ea",
+                "512b0103.aed5"
+            ]
+        ],
+        "x": 327.00001525878906,
+        "y": 666.9999694824219,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "id": "2f351536.d0caea",
+        "method": "GET",
+        "name": "Get report",
+        "ret": "bin",
+        "type": "http request",
+        "url": "",
+        "wires": [
+            [
+                "1862f1b0.e79d0e"
+            ]
+        ],
+        "x": 963.0003051757812,
+        "y": 668.9999084472656,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "drop": false,
+        "id": "1099160.fef66ea",
+        "name": "Wait 3 seconds for connection setup",
+        "pauseType": "delay",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "rate": "1",
+        "rateUnits": "second",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "type": "delay",
+        "wires": [
+            [
+                "f5a10a84.0a5ef8"
+            ]
+        ],
+        "x": 482.00006103515625,
+        "y": 537.9998779296875,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "id": "f4dbac57.0b245",
+        "method": "get",
+        "name": "",
+        "swaggerDoc": "",
+        "type": "http in",
+        "url": "/test",
+        "wires": [
+            [
+                "d3c6dfc4.2c392"
+            ]
+        ],
+        "x": 109.00013732910156,
+        "y": 665.9999084472656,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "id": "1862f1b0.e79d0e",
+        "name": "",
+        "type": "http response",
+        "wires": [],
+        "x": 1221.000244140625,
+        "y": 670.9999084472656,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "id": "f5a10a84.0a5ef8",
+        "method": "GET",
+        "name": "get definitions",
+        "ret": "obj",
+        "type": "http request",
+        "url": "",
+        "wires": [
+            [
+                "9c62cc51.639d3"
+            ]
+        ],
+        "x": 673.0001220703125,
+        "y": 670.9999084472656,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "func": "var REPORT_DEFINITION_NAME = \"fidef\";\n\nvar reportingUri = \"\";\n\nObject.keys(context.global.VCAP_SERVICES).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = context.global.VCAP_SERVICES[key][0].credentials.url;\n\t}\n});\n\nnode.error(\"RRRRRRRR: \" + JSON.stringify(msg.payload));\n\nfor (var i in msg.payload) {\n    if (msg.payload[i].name === REPORT_DEFINITION_NAME) {\n        msg.url = reportingUri + msg.payload[i].url + \"/reports/pdf\";        \n        node.log(\"setting msg.url to: \" + msg.url);\n        msg.headers.Cookie = context.global.cookie;\n        return msg;\n    }\n}\n\nnode.error(\"Couldn't find report definition with name \" + REPORT_DEFINITION_NAME);\n",
+        "id": "9c62cc51.639d3",
+        "name": "Find report definition",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "2f351536.d0caea"
+            ]
+        ],
+        "x": 822.0001220703125,
+        "y": 539.9998474121094,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "active": true,
+        "complete": "false",
+        "console": "false",
+        "id": "512b0103.aed5",
+        "name": "",
+        "type": "debug",
+        "wires": [],
+        "x": 509.00001525878906,
+        "y": 753.9999694824219,
+        "z": "62906b0d.3c9e8c"
+    },
+    {
+        "checkall": "true",
+        "id": "7df1d3f2.820e2c",
+        "name": "",
+        "outputs": 2,
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "0",
+                "vt": "str"
+            },
+            {
+                "t": "gt",
+                "v": "0",
+                "vt": "str"
+            }
+        ],
+        "type": "switch",
+        "wires": [
+            [
+                "1633267b.e9ccda"
+            ],
+            [
+                "9e907002.616f9"
+            ]
+        ],
+        "x": 895,
+        "y": 513,
+        "z": "5a8ccc5c.a57334"
+    },
+    {
+        "active": false,
+        "complete": "payload",
+        "console": "true",
+        "id": "53b2fa8f.ac4d04",
+        "name": "",
+        "type": "debug",
+        "wires": [],
+        "x": 984,
+        "y": 269,
+        "z": "5a8ccc5c.a57334"
+    },
+    {
+        "id": "3a6c4df5.c593b2",
+        "method": "get",
+        "name": "",
+        "swaggerDoc": "",
+        "type": "http in",
+        "url": "/isloaded",
+        "wires": [
+            [
+                "32a2da9c.cd5d26"
+            ]
+        ],
+        "x": 109,
+        "y": 227,
+        "z": "5a8ccc5c.a57334"
+    },
+    {
+        "func": "node.log(\"LENGTH: \" + msg.payload.length);\nmsg.payload = msg.payload['1'];\nreturn msg;",
+        "id": "43c62af2.bc39d4",
+        "name": "log length",
+        "noerr": 0,
+        "outputs": 1,
+        "type": "function",
+        "wires": [
+            [
+                "53b2fa8f.ac4d04",
+                "7df1d3f2.820e2c"
+            ]
+        ],
+        "x": 691,
+        "y": 366,
+        "z": "5a8ccc5c.a57334"
+    },
+    {
+        "drop": false,
+        "id": "1633267b.e9ccda",
+        "name": "",
+        "pauseType": "delay",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "rate": "1",
+        "rateUnits": "second",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "type": "delay",
+        "wires": [
+            [
+                "32a2da9c.cd5d26"
+            ]
+        ],
+        "x": 726,
+        "y": 689,
+        "z": "5a8ccc5c.a57334"
+    },
+    {
+        "id": "9e907002.616f9",
+        "name": "",
+        "type": "http response",
+        "wires": [],
+        "x": 1155,
+        "y": 507,
+        "z": "5a8ccc5c.a57334"
+    },
+    {
+        "active": false,
+        "complete": "payload",
+        "console": "true",
+        "id": "3e0ad22a.c1f52e",
+        "name": "",
+        "type": "debug",
+        "wires": [],
+        "x": 484,
+        "y": 138,
+        "z": "5a8ccc5c.a57334"
+    },
+    {
+        "id": "32a2da9c.cd5d26",
+        "name": "",
+        "params": "",
+        "query": "SELECT COUNT (*) FROM STDCODB;",
+        "service": "dashDB-pf",
+        "type": "dashDB in",
+        "wires": [
+            [
+                "3e0ad22a.c1f52e",
+                "43c62af2.bc39d4"
+            ]
+        ],
+        "x": 448,
+        "y": 494,
+        "z": "5a8ccc5c.a57334"
     }
 ]
