@@ -10,13 +10,15 @@
 <link
 	href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100"
 	rel="stylesheet" type="text/css">
-<link
-	href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"
-	rel="stylesheet">
-<link href="http://getbootstrap.com/dist/css/bootstrap.min.css"
-	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+	integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+	crossorigin="anonymous">
 
-<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+	integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+	crossorigin="anonymous"></script>
 
 <script src="https://rawgit.com/mozilla/pdf.js/gh-pages/build/pdf.js"></script>
 
@@ -31,14 +33,28 @@
 	<div
 		style="position: fixed; left: 0px; right: 0px; top: 0px; text-align: center;"
 		class="header">
-		<a href="http://www.ibm.com/cloud-computing/bluemix/"> <img
-			class="pull-left" src="images/blulogo.png"
+		<a href="http://www.ibm.com/cloud-computing/bluemix/" target="_blank">
+			<img class="pull-left" src="images/blulogo.png"
 			style="height: 30px; margin-top: 10px; float: left;" />
-		</a> <a href="/main.html"> Air Pollution FIWARE Monitor @ Bluemix> </a> <a
-			href="https://www.fiware.org/"> <img class="pull-right"
-			src="images/filogo1.png"
-			style="height: 25px; margin-top: 13px; float: right;" />
-		</a>
+		</a> <a href="/main.html"> Air Pollution FIWARE Monitor @ Bluemix> </a>
+		<div style="display: inline-block; float: right;" class="pull-right;">
+			<div id="userbtn" class="btn-group" style="display: inline-block;">
+				<button id="userbtn-1" type="button" class="btn btn-primary dropdown-toggle btn-xs"
+					data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+					sessionStorage.fiwareUser <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li onclick="logout();"><a href="/index.html">Logout</a></li>
+				</ul>
+			</div>
+
+			<a href="https://www.fiware.org/" target="_blank"> <img
+				src="images/filogo1.png" style="height: 25px; margin-top: 3px;" />
+			</a>
+
+
+		</div>
+
 	</div>
 
 	<div class="container" style="margin-top: 50px;">
@@ -67,7 +83,6 @@
 
 	<hr class="featurette-divider">
 
-
 	<script type='text/javascript'>
 		$.post("/auth", {
 			token : sessionStorage.fiwareToken
@@ -76,20 +91,26 @@
 		});
 	</script>
 
-
+	<script>
+		function logout() {
+			sessionStorage.clear();
+			$("#userbtn-1").text(sessionStorage.fiwareUser);
+		}
+	</script>
+	
 	<script type='text/javascript'>
 
-		function Fuc() {
+		function convert() {
 
-			var url = '/test';
+			var url = '/report';
 			PDFJS.disableWorker = true;
 			PDFJS.getDocument(url).then(
-					function getPdfHelloWorld(pdf) {
+					function getPdf(pdf) {
 						//
 						// Fetch the first page
 						//
 						pdf.getPage(1).then(
-								function getPageHelloWorld(page) {
+								function getPage(page) {
 									var scale = 1.5;
 									var viewport = page.getViewport(scale);
 
@@ -126,11 +147,9 @@
 
 		$(document).ready(function() {
 			// Handler for .ready() called.
-			Fuc();
+			convert();
 		});
 	</script>
-
-
 
 	<!-- Grid 1/2 -->
 	<div class="row3">
@@ -147,17 +166,6 @@
 
 	</div>
 
-
-
-
-
-
-
-
-
-
-
-
 	<hr class="featurette-divider">
 
 	<div
@@ -172,6 +180,18 @@
 			</p>
 		</div>
 	</div>
+	
+	
+	<script type='text/javascript'>
+		$( document ).ready(function() {
+			if (sessionStorage.fiwareToken != null) {
+				$("#userbtn").css("display", "inline-block");
+				$("#userbtn-1").text(sessionStorage.fiwareUser);
+			}else{
+				$("#userbtn").css("display", "none");
+			}
+		});
+	</script>
 
 </body>
 

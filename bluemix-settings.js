@@ -53,7 +53,7 @@ var settings = module.exports = {
      	VCAP_SERVICES: JSON.parse(process.env.VCAP_SERVICES),
      	URL: require('url'),
         HTTPS: require('https'),
-        HTTP: require('http')        
+        HTTP: require('http')
      },
 
     storageModule: require("./couchstorage")
