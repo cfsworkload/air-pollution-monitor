@@ -40,7 +40,7 @@
 				<button id="userbtn-1" type="button"
 					class="btn btn-primary dropdown-toggle btn-xs"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-					sessionStorage.fiwareUser <span class="caret"></span>
+					localStorage.fiwareUser <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu">
 					<li onclick="logout();"><a href="/index.html">Logout</a></li>
@@ -69,7 +69,7 @@
 
 	<script type='text/javascript'>
 		$.post("/auth", {
-			token : sessionStorage.fiwareToken
+			token : localStorage.fiwareToken
 		}).fail(function() {
 			window.location = "/index.html";
 		});
@@ -77,8 +77,8 @@
 
 	<script>
 		function logout() {
-			sessionStorage.clear();
-			$("#userbtn-1").text(sessionStorage.fiwareUser);
+			localStorage.clear();
+			$("#userbtn-1").text(localStorage.fiwareUser);
 		}
 	</script>
 
@@ -205,9 +205,9 @@ html,body,#map-canvas {
 
 	<script type='text/javascript'>
 		$( document ).ready(function() {
-			if (sessionStorage.fiwareToken != null) {
+			if (localStorage.fiwareToken != null) {
 				$("#userbtn").css("display", "inline-block");
-				$("#userbtn-1").text(sessionStorage.fiwareUser);
+				$("#userbtn-1").text(localStorage.fiwareUser);
 			}else{
 				$("#userbtn").css("display", "none");
 			}

@@ -34,8 +34,8 @@
 			user : $('#user').val(),
 			password : $('#password').val()
 		}).done(function(token) {
-			sessionStorage.fiwareToken = token;
-			sessionStorage.fiwareUser = $('#user').val();
+			localStorage.fiwareToken = token;
+			localStorage.fiwareUser = $('#user').val();
 			$.get("/wait4data", function(res) {
 				window.location = "/main.html";
 			});
@@ -48,8 +48,8 @@
 
 <script>
 	function logout() {
-		sessionStorage.clear();
-		$("#userbtn-1").text(sessionStorage.fiwareUser);
+		localStorage.clear();
+		$("#userbtn-1").text(localStorage.fiwareUser);
 	}
 </script>
 
@@ -67,7 +67,7 @@
 			<div id="userbtn" class="btn-group" style="display: none;">
 				<button id="userbtn-1" type="button" class="btn btn-primary dropdown-toggle btn-xs"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-					sessionStorage.fiwareUser <span class="caret"></span>
+					localStorage.fiwareUser <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu">
 					<li onclick="logout();"><a href="/index.html">Logout</a></li>
@@ -130,9 +130,9 @@
 
 	<script type='text/javascript'>
 		$( document ).ready(function() {
-			if (sessionStorage.fiwareToken != null) {
+			if (localStorage.fiwareToken != null) {
 				$("#userbtn").css("display", "inline-block");
-				$("#userbtn-1").text(sessionStorage.fiwareUser);
+				$("#userbtn-1").text(localStorage.fiwareUser);
 			}else{
 				$("#userbtn").css("display", "none");
 			}
