@@ -34,7 +34,7 @@
 		<a href="http://www.ibm.com/cloud-computing/bluemix/" target="_blank">
 			<img class="pull-left" src="images/blulogo.png"
 			style="height: 30px; margin-top: 10px; float: left;" />
-		</a> <a href="/main.html"> Air Pollution FIWARE Monitor @ Bluemix> </a>
+		</a> <a href="/main.html"> Air Pollution FIWARE Monitor @ Bluemix </a>
 		<div style="display: inline-block; float: right;" class="pull-right;">
 			<div id="userbtn" class="btn-group" style="display: inline-block;">
 				<button id="userbtn-1" type="button"
@@ -58,26 +58,16 @@
 
 	<div class="container" style="margin-top: 50px;">
 		<h1>Overview</h1>
-		<p class="lead">FIWARE is an emerging standard for designing IoT
-			applications, actively promoted by the European Commission and being
-			increasingly adopted in Smart Cities projects in Europe as well as
-			other areas. Data collected from an extensive set of experimental IoT
-			facilities deployed across Europe (in Santander and other cities) is
-			published via FIWARE Orion Broker -- the heart of the FIWARE IoT
-			architecture. Orion serves as a broker for data and events collected
-			from the 'edge' infrastructure, surfacing standard NGSI-based APIs to
-			publish, subscribe and query data. The data can be then used by the
-			various cloud services for storage, processing, analytics,
-			visualization etc. This reference architecture demonstrates how
-			Bluemix can be used to design a powerful cloud-based FIWARE-compliant
-			IoT architecture, comprising FIWARE Orion Broker deployed in FIWARE
-			Lab combined with several Bluemix services used to ingest, process
-			and store the data, and then to use it for advanced visualization and
-			analytics.</p>
-		<p>
+		<p class="lead">The following map shows live data on air pollution in 
+			Santander, collected via FIWARE Event Broker and then stored and 
+			processed in Bluemix. The red circles indicate the location of
+			environmental sensors deployed in Santander, while their diameter
+			indicate the measured CO concentration (average over a fixed time 
+			window - one hour by default). </p>
+		<!-- <p>
 			<a class="btn btn-primary btn-lg" href="#" role="button">Learn
 				more »</a>
-		</p>
+		</p> -->
 	</div>
 
 	<hr class="featurette-divider">
@@ -213,7 +203,7 @@ html,body,#map-canvas {
 			<p style="text-align: center">
 				<a
 					style="width: 250px; height: 50px; font-size: 15px; font-weight: bold; float: right; margin-right: 20px; margin-bottom: 10px;"
-					class="button" href="red/">Go to your Node-RED flow editor</a>
+					class="button" href="red/">View the events flow in Node-RED editor</a>
 			</p>
 		</div>
 	</div>
