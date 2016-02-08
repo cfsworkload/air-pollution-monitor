@@ -50,10 +50,7 @@ var settings = module.exports = {
     httpStatic: path.join(__dirname,"public"),
 
      functionGlobalContext: {
-     	VCAP_SERVICES: JSON.parse(process.env.VCAP_SERVICES),
-     	URL: require('url'),
-        HTTPS: require('https'),
-        HTTP: require('http')
+     	VCAP_SERVICES: JSON.parse(process.env.VCAP_SERVICES)
      },
 
     storageModule: require("./couchstorage")
