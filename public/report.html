@@ -2,23 +2,23 @@
 <html lang="en">
 <head>
 <script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Air Pollution FIWARE Monitor @ Bluemix</title>
 
 <link
-	href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100"
-	rel="stylesheet" type="text/css">
+    href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100"
+    rel="stylesheet" type="text/css">
 <link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-	integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
-	crossorigin="anonymous">
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+    integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+    crossorigin="anonymous">
 
 <script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
-	integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
-	crossorigin="anonymous"></script>
+    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+    integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+    crossorigin="anonymous"></script>
 
 <script src="https://rawgit.com/mozilla/pdf.js/gh-pages/build/pdf.js"></script>
 
@@ -30,155 +30,199 @@
 <style type="text/css"></style>
 </head>
 <body>
-	<div
-		style="position: fixed; left: 0px; right: 0px; top: 0px; text-align: center;"
-		class="header">
-		<a href="http://www.ibm.com/cloud-computing/bluemix/" target="_blank">
-			<img class="pull-left" src="images/blulogo.png"
-			style="height: 30px; margin-top: 10px; float: left;" />
-		</a> <a href="/main.html"> Air Pollution FIWARE Monitor @ Bluemix </a>
-		<div style="display: inline-block; float: right;" class="pull-right;">
-			<div id="userbtn" class="btn-group" style="display: inline-block;">
-				<button id="userbtn-1" type="button" class="btn btn-primary dropdown-toggle btn-xs"
-					data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-					localStorage.fiwareUser <span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu">
-					<li onclick="logout();"><a href="/index.html">Logout</a></li>
-				</ul>
-			</div>
+    <div
+        style="position: fixed; left: 0px; right: 0px; top: 0px; text-align: center;"
+        class="header">
+        <a href="http://www.ibm.com/cloud-computing/bluemix/" target="_blank">
+            <img class="pull-left" src="images/blulogo.png"
+            style="height: 30px; margin-top: 10px; float: left;" />
+        </a> <a href="/main.html"> Air Pollution FIWARE Monitor @ Bluemix </a>
+        <div style="display: inline-block; float: right;" class="pull-right;">
+            <div id="userbtn" class="btn-group" style="display: inline-block;">
+                <button id="userbtn-1" type="button"
+                    class="btn btn-primary dropdown-toggle btn-xs"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    localStorage.fiwareUser <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li onclick="logout();"><a href="/index.html">Logout</a></li>
+                </ul>
+            </div>
 
-			<a href="https://www.fiware.org/" target="_blank"> <img
-				src="images/filogo1.png" style="height: 25px; margin-top: 3px;" />
-			</a>
+            <a href="https://www.fiware.org/" target="_blank"> <img
+                src="images/filogo1.png" style="height: 25px; margin-top: 3px;" />
+            </a>
 
 
-		</div>
+        </div>
 
-	</div>
+    </div>
 
-	<div class="container" style="margin-top: 50px;">
-		<p class="lead">The following chart shows the historical data on air 
-			pollution in Santander (since the time when this particular 
-			application instance started). The report is powered by
-			Embeddable Reporting service, retrieving the historical data
-			from DashDB warehouse. In this example the report shows the
-			average CO Concentration for the most polluting sensors.</p>
-	</div>
+    <div class="container" style="margin-top: 50px;">
+        <p class="lead">The following chart shows the historical data on
+            air pollution in Santander (since the time when this particular
+            application instance started). The report is powered by Embeddable
+            Reporting service, retrieving the historical data from DashDB
+            warehouse. In this example the report shows the average CO
+            Concentration for the most polluting sensors.</p>
+    </div>
 
-	<hr class="featurette-divider">
+    <hr class="featurette-divider">
 
-	<script type='text/javascript'>
-		$.post("/auth", {
-			token : localStorage.fiwareToken
-		}).fail(function() {
-			window.location = "/index.html";
-		});
-	</script>
+    <script type='text/javascript'>
+        $.post("/auth", {
+            token : localStorage.fiwareToken
+        }).fail(function() {
+            window.location = "/index.html";
+        });
+    </script>
 
-	<script>
-		function logout() {
-			localStorage.clear();
-			$("#userbtn-1").text(localStorage.fiwareUser);
-		}
-	</script>
-	
-	<script type='text/javascript'>
+    <script>
+        function logout() {
+            localStorage.clear();
+            $("#userbtn-1").text(localStorage.fiwareUser);
+        }
+    </script>
 
-		function convert() {
+    <script type='text/javascript'>
+        function convert() {
 
-			var url = '/report';
-			PDFJS.disableWorker = true;
-			PDFJS.getDocument(url).then(
-					function getPdf(pdf) {
-						//
-						// Fetch the first page
-						//
-						pdf.getPage(1).then(
-								function getPage(page) {
-									var scale = 1.5;
-									var viewport = page.getViewport(scale);
+            var url = '/report';
+            PDFJS.disableWorker = true;
+            PDFJS.getDocument(url).then(
+                    function getPdf(pdf) {
+                        //
+                        // Fetch the first page
+                        //
+                        pdf.getPage(1).then(
+                                function getPage(page) {
+                                    var scale = 1.5;
+                                    var viewport = page.getViewport(scale);
 
-									//
-									// Prepare canvas using PDF page dimensions
-									//
-									var canvas = document
-											.getElementById('the-canvas');
-									var ctx = canvas.getContext("2d");
-									ctx.font = "30px Comic Sans MS";
-									ctx.fillStyle = "red";
-									ctx.textAlign = "center";
-									ctx
-											.fillText("Loading report",
-													canvas.width / 2,
-													canvas.height / 2);
-									var context = canvas.getContext('2d');
-									canvas.height = viewport.height / 2;
-									canvas.width = viewport.width;
+                                    //
+                                    // Prepare canvas using PDF page dimensions
+                                    //
+                                    var canvas = document
+                                            .getElementById('the-canvas');
+                                    var ctx = canvas.getContext("2d");
+                                    ctx.font = "30px Comic Sans MS";
+                                    ctx.fillStyle = "red";
+                                    ctx.textAlign = "center";
+                                    ctx
+                                            .fillText("Loading report",
+                                                    canvas.width / 2,
+                                                    canvas.height / 2);
+                                    var context = canvas.getContext('2d');
+                                    canvas.height = viewport.height;
+                                    canvas.width = viewport.width;
 
-									//
-									// Render PDF page into canvas context
-									//
-									page.render({
-										canvasContext : context,
-										viewport : viewport
-									});
-									$("#loading_image").css("display", "none");
-									$("#the-canvas").css("display", "block");
-								});
-					});
+                                    //
+                                    // Render PDF page into canvas context
+                                    //
+                                    page.render({
+                                        canvasContext : context,
+                                        viewport : viewport
+                                    }).promise.then(function() {
+                                        cropImageFromCanvas(context, canvas);
+                                    });
+                                    $("#loading_image").css("display", "none");
+                                    $("#the-canvas").css("display", "block");
+                                });
 
-		}
+                        function cropImageFromCanvas(ctx, canvas) {
+                            var pad = 2;
+                            var w = canvas.width, h = canvas.height, pix = {
+                                x : [],
+                                y : []
+                            }, imageData = ctx.getImageData(0, 0, canvas.width,
+                                    canvas.height), x, y, index;
+                            for (y = 0; y < h; y++) {
+                                for (x = 0; x < w; x++) {
+                                    index = (y * w + x) * 4;
+                                    if (imageData.data[index + 2] != 255 || imageData.data[index + 1] != 255 || imageData.data[index] != 255) {
+                                        pix.x.push(x);
+                                        pix.y.push(y);
 
-		$(document).ready(function() {
-			// Handler for .ready() called.
-			convert();
-		});
-	</script>
+                                    }
+                                }
+                            }
+                            pix.x.sort(function(a, b) {
+                                return a - b
+                            });
+                            pix.y.sort(function(a, b) {
+                                return a - b
+                            });
+                            var n = pix.x.length - 1;
 
-	<!-- Grid 1/2 -->
-	<div class="row3">
-		<div class="grid">
-			<div class="col-1-1">
-				<div class="content blurb" style="text-align: center;">
-					<img id="loading_image"
-						src="http://scottkelby.com/wp-content/plugins/facebook-pagelike-widget/loader.gif"
-						style="display: inline-block;" />
-					<canvas id="the-canvas" style="display: none;"></canvas>
-				</div>
-			</div>
-		</div>
+                            w = pix.x[n] - pix.x[0] + pad;
+                            h = pix.y[n] - pix.y[0] + pad;
+                            var cut = ctx
+                                    .getImageData(pix.x[0], pix.y[0], w, h);
 
-	</div>
+                            canvas.width = w;
+                            canvas.height = h;
+                            ctx.putImageData(cut, 0, 0);
 
-	<hr class="featurette-divider">
+                            var image = canvas.toDataURL();
+                            /* var win = window.open(image, '_blank');
+                            win.focus(); */
 
-	<div
-		style="position: relative; left: 0px; right: 0px; bottom: 0px; text-align: center; height: 100px;"
-		class="header1">
-		<div class="content1" style="text-align: center"></div>
-		<div>
-			<p style="text-align: center">
-				<a
-					style="width: 300px; height: 50px; font-size: 15px; font-weight: bold; float: center; margin-bottom: 10px;"
-					class="button" href="red/">View the events flow in Node-RED editor</a>
-			</p>
-		</div>
-	</div>
-	
-	
-	<script type='text/javascript'>
-		$( document ).ready(function() {
-			if (localStorage.fiwareToken != null) {
-				$("#userbtn").css("display", "inline-block");
-				$("#userbtn-1").text(localStorage.fiwareUser);
-			}else{
-				$("#userbtn").css("display", "none");
-			}
-		});
-	</script>
+                        }
+                    });
+
+        }
+
+        $(document).ready(function() {
+            // Handler for .ready() called.
+            convert();
+        });
+    </script>
+
+    <!-- Grid 1/2 -->
+    <div class="row3">
+        <div class="grid">
+            <div class="col-1-1">
+                <div class="content blurb" style="text-align: center;">
+                    <img id="loading_image"
+                        src="http://scottkelby.com/wp-content/plugins/facebook-pagelike-widget/loader.gif"
+                        style="display: inline-block;" />
+                    <canvas id="the-canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr class="featurette-divider">
+
+    <div
+        style="position: relative; left: 0px; right: 0px; bottom: 0px; text-align: center; height: 100px;"
+        class="header1">
+        <div class="content1" style="text-align: center"></div>
+        <div>
+            <p style="text-align: center">
+                <a
+                    style="width: 300px; height: 50px; font-size: 15px; font-weight: bold; float: center; margin-bottom: 10px;"
+                    class="button" href="red/">View the events flow in Node-RED
+                    editor</a>
+            </p>
+        </div>
+    </div>
+
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            if (localStorage.fiwareToken != null) {
+                $("#userbtn").css("display", "inline-block");
+                $("#userbtn-1").text(localStorage.fiwareUser);
+            } else {
+                $("#userbtn").css("display", "none");
+            }
+        });
+    </script>
 
 </body>
 
 
 </html>
+
