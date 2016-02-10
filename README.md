@@ -17,7 +17,7 @@ When you sign up, you'll create an IBM ID, create an alias, and register with Bl
 
 Select the **Deploy to Bluemix** button below to fork a copy of the project code and create the services.
 
-  [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://hub.jazz.net/git/cfsworkload/fiware-app-build)
+  [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/cfsworkload/air-pollution-monitor)
 
 ## Monitor deployment
 
