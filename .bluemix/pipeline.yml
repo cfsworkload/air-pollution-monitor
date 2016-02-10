@@ -30,8 +30,18 @@ stages:
             cf create-service cloudantNoSQLDB Shared "${CF_APP}-cloudant"
             cf create-service dashDB Entry "${CF_APP}-dashDB"
             cf create-service erservice free "${CF_APP}-erservice"
-            sed -i 's/fiware-cloudantNoSQLDB/'${CF_APP}'-cloudant/g' defaults/flow.json
-            sed -i 's/dashDB-pf/'${CF_APP}'-dashDB/g' defaults/flow.json
+      python << END
+      import json
+      with open('defaults/flow.json', 'r+') as f:
+          data = json.load(f)
+          for o in data:
+              if 'type' in o and (o['type'] == "cloudant out" or o['type'] == "cloudant in"):
+                  o['service'] = "${CF_APP}-cloudant" 
+              if 'type' in o and (o['type'] == "dashDB out" or o['type'] == "dashDB in"):
+                  o['service'] = "${CF_APP}-dashDB"
+          f.seek(0)
+          json.dump(data, f, indent=4)
+      END
             cf push "${CF_APP}" -n "${CF_APP}" --no-start
             cf bind-service "${CF_APP}" "${CF_APP}-cloudant"
             cf bind-service "${CF_APP}" "${CF_APP}-dashDB"
@@ -53,13 +63,10 @@ stages:
             #export PATH=$IBM_DB_HOME/bin:$IBM_DB_HOME/adm:$IBM_DB_HOME/lib:./clidriver/bin:./clidriver/adm:./clidriver/lib:$PATH
             #export LD_LIBRARY_PATH=$IBM_DB_HOME/lib:./clidriver/lib
             #export DYLD_LIBRARY_PATH=$IBM_DB_HOME/lib:./clidriver/lib:./clidriver/lib/icc
-            echo 0
             uname -a
-            echo 01
             lsb_release -a
             echo 1
             sudo apt-get update -y
-            echo 1a
             sudo apt-get install -y libxml2
             echo 1b
             ./clidriver/bin/db2cli execsql -connstring "$dsn" -inputsql ./SDTCODB.sql
@@ -89,7 +96,15 @@ stages:
             echo "Create report definition object"
             edifinition_id=`echo {\"reportPackage\": \"${emodel_id}\", \"name\": \"fidef\"} | curl --insecure -X POST -sb newcookies.txt https://${erservice_host}/ers/v1/packages/${epackage_id}/definitions --header 'Content-Type: application/vnd.ibm.ers.v1.definitions+json' -d @- | python -c "import json,sys;obj=json.load(sys.stdin);print obj['_bundleID'];"`
             echo "edifinition_id:$edifinition_id"
-            sed -i 's/ERS_MODEL_ID/'${emodel_id}'/' fidef_spec.xml
+      python << END
+      import xml.etree.ElementTree
+      et = xml.etree.ElementTree.parse('fidef_spec.xml')
+      namespaces = {'ns': 'http://developer.cognos.com/schemas/report/12.0/'}
+      et.getroot().find("ns:modelPath", namespaces).text='/ers/v1/models/${emodel_id}/model'
+      xml.etree.ElementTree.register_namespace('', 'http://developer.cognos.com/schemas/report/12.0/')
+      with open('fidef_spec.xml', 'w') as f:
+          f.write(xml.etree.ElementTree.tostring(et.getroot()))
+      END
             echo "Populate report definition specification"
             cat fidef_spec.xml | curl --insecure -X PUT -sb newcookies.txt https://${erservice_host}/ers/v1/definitions/${edifinition_id}/specification -d @- --header "Content-Type: application/xml"
             cf set-env ${CF_APP} NODE_RED_USERNAME fibluemix@gmail.com

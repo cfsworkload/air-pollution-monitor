@@ -10,13 +10,17 @@
 <link
 	href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100"
 	rel="stylesheet" type="text/css">
-<link
-	href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"
-	rel="stylesheet">
-<link href="http://getbootstrap.com/dist/css/bootstrap.min.css"
-	rel="stylesheet">
 
-<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+	integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+	crossorigin="anonymous">
+
+
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+	integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+	crossorigin="anonymous"></script>
 
 <link rel="icon" type="image/png" href="images/fimix4.png">
 
@@ -29,9 +33,10 @@
 		$.post("/login", {
 			user : $('#user').val(),
 			password : $('#password').val()
-		}).done(function(data) {
-			sessionStorage.fiwareToken = data;
-			$.get("/isloaded", function(res) {
+		}).done(function(token) {
+			localStorage.fiwareToken = token;
+			localStorage.fiwareUser = $('#user').val();
+			$.get("/wait4data", function(res) {
 				window.location = "/main.html";
 			});
 		}).fail(function() {
@@ -41,20 +46,41 @@
 	}
 </script>
 
+<script>
+	function logout() {
+		localStorage.clear();
+		$("#userbtn-1").text(localStorage.fiwareUser);
+	}
+</script>
+
 <style type="text/css"></style>
 </head>
 <body>
 	<div
 		style="position: fixed; left: 0px; right: 0px; top: 0px; text-align: center;"
 		class="header">
-		<a href="http://www.ibm.com/cloud-computing/bluemix/"> <img
-			class="pull-left" src="images/blulogo.png"
+		<a href="http://www.ibm.com/cloud-computing/bluemix/" target="_blank">
+			<img class="pull-left" src="images/blulogo.png"
 			style="height: 30px; margin-top: 10px; float: left;" />
-		</a> <a href="/main.html"> Air Pollution FIWARE Monitor @ Bluemix> </a> <a
-			href="https://www.fiware.org/"> <img class="pull-right"
-			src="images/filogo1.png"
-			style="height: 25px; margin-top: 13px; float: right;" />
-		</a>
+		</a> <a href="/index.html"> Air Pollution FIWARE Monitor @ Bluemix </a>
+		<div style="display: inline-block; float: right;" class="pull-right;">
+			<div id="userbtn" class="btn-group" style="display: none;">
+				<button id="userbtn-1" type="button" class="btn btn-primary dropdown-toggle btn-xs"
+					data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+					localStorage.fiwareUser <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li onclick="logout();"><a href="/index.html">Logout</a></li>
+				</ul>
+			</div>
+
+			<a href="https://www.fiware.org/" target="_blank"> <img
+				src="images/filogo1.png" style="height: 25px; margin-top: 3px;" />
+			</a>
+
+
+		</div>
+
 	</div>
 	<!-- Grid 1 -->
 	<div class="title">
@@ -68,8 +94,6 @@
 				<div class="panel-heading">
 					<h3 class="panel-title">FIWARE Lab login</h3>
 				</div>
-
-
 				<div style="width: 100%; position: relative;">
 
 					<div style="display: table; width: 100%;">
@@ -94,33 +118,39 @@
 					<img id="loading_image"
 						src="http://wbpsites.com/howtobesingle/us/tumblr/img/tumblr/ajax_loader.gif"
 						style="position: absolute; display: none; width: 100px; top: 50px; left: 200px;" />
-
 				</div>
-
 				<div id="errorMsg" style="color: red; display: none;">Login
 					Error</div>
-
-
 			</form>
-
 
 			<!-- Login End -->
 
-
 		</div>
 	</div>
+
+	<script type='text/javascript'>
+		$( document ).ready(function() {
+			if (localStorage.fiwareToken != null) {
+				$("#userbtn").css("display", "inline-block");
+				$("#userbtn-1").text(localStorage.fiwareUser);
+			}else{
+				$("#userbtn").css("display", "none");
+			}
+		});
+	</script>
+	
 
 </body>
-	<div
-		style="position: absolute; left: 0px; right: 0px; bottom: 0px; text-align: center; height: 100px;"
-		class="header1">
-		<div class="content1" style="text-align: center"></div>
-		<div>
-			<p style="text-align: center">
-				<a
-					style="width: 250px; height: 50px; font-size: 15px; font-weight: bold; float: right; margin-right: 20px; margin-bottom: 10px;"
-					class="button" href="red/">Go to your Node-RED flow editor</a>
-			</p>
-		</div>
+<div
+	style="position: absolute; left: 0px; right: 0px; bottom: 0px; text-align: center; height: 100px;"
+	class="header1">
+	<div class="content1" style="text-align: center"></div>
+	<div>
+		<p style="text-align: center">
+			<a
+				style="width: 300px; height: 50px; font-size: 15px; font-weight: bold; float: center; margin-bottom: 10px;"
+				class="button" href="red/">View the events flow in Node-RED editor</a>
+		</p>
 	</div>
+</div>
 </html>
