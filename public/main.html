@@ -103,11 +103,18 @@
 		<div class="row featurette">
 			<div class="col-md-7" style="position: inherit;">
 				<h2 class="featurette-heading">Watch live pollution data on a map</h2>
+				Short-term historical data is ingested by a Node-RED flow using FIWARE
+				NGSI-based APIs, is pre-processed and is stored in Cloudant NoSQL 
+				Database, and then is used by the Node.JS web app to show an augmented 
+				map with red circles indicating the air pollution intensity at sensor
+				locations. 
+				<br>
+				Click on the map icon to see the live map. 
 			</div>
 			<div class="col-md-5" style="position: inherit;">
 				<a href="/map.html"> <img
 					class="featurette-image img-responsive center-block"
-					src="images/map.jpg" style="height: 300px; float: right;">
+					src="images/map.jpg" style="height: 200px; float: right;">
 				</a>
 			</div>
 		</div>
@@ -118,11 +125,18 @@
 			<div class="col-md-7 col-md-push-5">
 				<h2 class="featurette-heading">Generate sophisticated reports
 					with Embeddable Reporting service</h2>
+				The air pollution data ingested via Node-RED is converted and stored 
+				in DashDB. Then a Node.JS-based web app is approaching the Embeddable
+				Reporting service, to generate a pre-configured report retrieving 
+				historical air pollution data from DashDB and showing it on a cylinder 
+				chart (using simple average-based aggregation).
+				<br>
+				Click on the chart icon to see the historical chart report.
 			</div>
 			<div class="col-md-5 col-md-pull-7">
 				<a href="/report.html"> <img
 					class="featurette-image img-responsive center-block"
-					src="images/report.jpg" style="height: 300px; float: left;">
+					src="images/report.jpg" style="height: 200px; float: left;">
 				</a>
 			</div>
 		</div>
