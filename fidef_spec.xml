@@ -356,7 +356,7 @@
 		<query name="Query1">
 			<source>
 				<sqlQuery dataSource="datasource" name="SQL1">
-					<sqlText>SELECT ID, COCONCENTRATION FROM STDCODB WHERE COCONCENTRATION>1 and COCONCENTRATION<99</sqlText>
+					<sqlText>SELECT ID, COCONCENTRATION FROM STDCODB WHERE COCONCENTRATION&gt;1 and COCONCENTRATION&lt;99</sqlText>
 							<mdProjectedItems>
 								<mdProjectedItem name="ID"/>
 								<mdProjectedItem name="COCONCENTRATION"/>
