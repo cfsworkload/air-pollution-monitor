@@ -11,7 +11,7 @@ The Air Pollution Monitor sample app has been created so you can deploy it into 
 
 - Sign up for Bluemix at https://console.ng.bluemix.net and DevOps Services at https://hub.jazz.net.
 When you sign up, you'll create an IBM ID, create an alias, and register with Bluemix.
-- Sign up for a FIWARE Lab account at https://account.lab.fiware.org/.
+- Sign up for a FIWARE Lab account at https://account.lab.fiware.org/. Notice that for the purposes of this demonstration, a dedicated account has been created with username fibluemix@gmail.com and password f1bluemix.
 
 ## Deploy to Bluemix
 
@@ -33,23 +33,22 @@ Once the deployment finishes, you will have an instance of the app in your Bluem
 
 1. Go to the web interface of the app by clicking the **Open the Deployed App** button in DevOps Services or the **Open URL** button in your Bluemix Dashboard.
 2. Enter your FIWARE Lab credentials.
-3. The live pollution levels in Santander can be viewed in several different ways. You can also see a history of the air pollution data aggregated since your app started running. View the data:
-  - On your augmented map.
-  - By going to the Node-RED flow editor, linked at the bottom of the app landing page. From here you can learn about the app implementation details and experiment with the app components and services. Some potential customization points include:
-    - The query used to retrieve data in the function node.
-    - The interval at which data is retrieved in the inject node. The default is 10 minutes.
-    - The template node that creates the visualization.
+3. The air pollution levels in Santander can be viewed in several different ways.
+  - Live short-term aggregation of sensor data visualized on a map 
+  - Historical view of sensor data represented as a cylinder chart (aggregated since your app started running).
+4. Optional: go to Node-RED flow editor, linked at the bottom of the app landing page (use fiware/f1ware credentials). From here you can learn about the app implementation details and experiment with the app components and services. Some potential customization points include:
+    - The query used to retrieve data in the "Prepare FIWARE/Orion Query" function node (Note: do not change the query unless you are familiar with the query syntax).
+    - The interval at which data is retrieved in the "Events Retrieval" inject node. The default is 10 minutes.
 4. Optional: From the Bluemix Dashboard, go to the UI of the Embeddable Reporting service instance associated with your app to change the report definitions. The defaults are stored in `fidef_spec.xml`.
 
 
 ## About the services
 
-#### Quickly and intuitively program the app data intake and processing using Node-RED flows
+#### Quickly and intuitively program the app data ingestion and processing using Node-RED flows
 Node-RED is a Node.js based application platform providing a visual flow editor, as well as a library of pre-canned 'nodes' that can be used to program data ingestion and processing flows very quickly. In the app, Node-RED is used for several purposes, including:
 - Data ingestion from FIWARE Lab using NGSI-based queries.
 - Pre-processing of data, programmed in javascript, including the extraction of relevant fields, validation of received values, format transformation, etc.
-- Web serving, including the landing pages, as well as the rendering of an augmented map and a historical report produced by the app.
-- Routing of data between intake, processing, storage and visualization.
+- Routing of data between ingest, processing, storage and visualization.
 
 For more information about Node-RED, go to the [Bluemix documentation](https://www.ng.bluemix.net/docs/starters/Node-RED/nodered.html).
 
