@@ -109,4 +109,9 @@ stages:
             cat fidef_spec.xml | curl --insecure -X PUT -sb newcookies.txt https://${erservice_host}/ers/v1/definitions/${edifinition_id}/specification -d @- --header "Content-Type: application/xml"
             cf set-env ${CF_APP} NODE_RED_USERNAME fiware
             cf set-env ${CF_APP} NODE_RED_PASSWORD f1ware
+            if [[ "${CF_APP}" == *preview ]]
+            then
+                cf set-env ${CF_APP} FIWARE_USER fibluemix@gmail.com
+                cf set-env ${CF_APP} FIWARE_PASSWORD f1bluemix
+            fi
             cf start ${CF_APP}

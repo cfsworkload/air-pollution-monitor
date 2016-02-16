@@ -28,6 +28,14 @@
 <link href="css/style.css" rel="stylesheet" media="screen">
 
 <script>
+    $.ajaxSetup({async: false});
+	$.post("/auth", {
+		token : localStorage.fiwareToken
+	}).done(function() {
+		window.location = "/main.html";
+	}).fail(function() {
+		localStorage.clear();
+	});
 	function onLogin() {
 		$("#loading_image").css("display", "block");
 		$.post("/login", {
@@ -35,7 +43,7 @@
 			password : $('#password').val()
 		}).done(function(token) {
 			localStorage.fiwareToken = token;
-			localStorage.fiwareUser = $('#user').val();
+			localStorage.fiwareUser = $('#user').val() || "demo";
 			$.get("/wait4data", function(res) {
 				window.location = "/main.html";
 			});
@@ -44,6 +52,7 @@
 			$("#loading_image").css("display", "none");
 		});
 	}
+	onLogin();
 </script>
 
 <script>
@@ -83,7 +92,7 @@
 
 	</div>
 	<!-- Grid 1 -->
-	<div class="title">
+	<div class="title" style="text-align: center">
 		<div class="content" style="text-align: center">
 
 			<!-- Login -->
@@ -110,6 +119,8 @@
 										class="form-control" placeholder="FIWARE Lab password"><br>
 									<input type="submit" value="Submit"
 										class="btn btn-lg btn-primary btn-block">
+				                	<a href="https://github.com/cfsworkload/air-pollution-monitor/blob/master/README.md" class="pull-right need-help">Need help? </a>
+				                	<a href="https://account.lab.fiware.org/" class="pull-left need-help">Sign Up </a>
 								</div>
 							</div>
 						</div>

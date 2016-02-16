@@ -86,7 +86,7 @@
             ]
         ],
         "x": 720.5,
-        "y": 308,
+        "y": 299,
         "z": "7687703.43b0b9"
     },
     {
@@ -101,8 +101,8 @@
                 "aa8af7e2.adf958"
             ]
         ],
-        "x": 849,
-        "y": 187,
+        "x": 866,
+        "y": 205,
         "z": "7687703.43b0b9"
     },
     {
@@ -112,11 +112,11 @@
         "name": "Store in Cloudant: STDCO",
         "operation": "insert",
         "payonly": true,
-        "service": "air-pollution-monitor-kpave1-2-cloudant",
+        "service": "air-pollution-monitor-h-19-cloudant",
         "type": "cloudant out",
         "wires": [],
-        "x": 1130,
-        "y": 186,
+        "x": 1136,
+        "y": 204,
         "z": "7687703.43b0b9"
     },
     {
@@ -144,7 +144,7 @@
     {
         "id": "698042d2.62dad4",
         "name": "",
-        "service": "air-pollution-monitor-kpave1-2-dashDB",
+        "service": "air-pollution-monitor-h-19-dashDB",
         "table": "STDCODB",
         "type": "dashDB out",
         "wires": [],
@@ -185,7 +185,7 @@
         "z": "7687703.43b0b9"
     },
     {
-        "func": "token = msg.payload.token;\nif (token !== context.global.fitoken){\n    node.warn(\"Token: \" + token + \" != \" + context.global.fitoken);\n    msg.statusCode = 401;\n}\nreturn msg;",
+        "func": "token = msg.payload.token;\nif (token !== context.global.fitoken){\n    node.log(\"Token: \" + token + \" != \" + context.global.fitoken);\n    msg.statusCode = 401;\n}\nreturn msg;",
         "id": "f2495a48.46a448",
         "name": "validate token",
         "noerr": 0,
@@ -227,7 +227,7 @@
         "z": "7687703.43b0b9"
     },
     {
-        "func": "body=msg.payload;\nnode.log(JSON.stringify(body));\ncontext.global.user = body.user;\ncontext.global.password = body.password;\n\nmsg.headers = {\n \"Accept\": \"application/json\"\n}\n\nmsg.payload = {\n \"username\": body.user,\n \"password\": body.password\n}\n\n\nreturn msg;",
+        "func": "body=msg.payload;\ncontext.global.user = body.user || context.global.FIWARE_USER;\ncontext.global.password = body.password || context.global.FIWARE_PASSWORD;\n\nmsg.headers = {\n \"Accept\": \"application/json\"\n}\n\nmsg.payload = {\n \"username\": context.global.user,\n \"password\": context.global.password\n}\n\n\nreturn msg;",
         "id": "1178d2.f7469f2e",
         "name": "save credentials to globals",
         "noerr": 0,
@@ -298,7 +298,7 @@
         "z": "7687703.43b0b9"
     },
     {
-        "func": "if (!context.global.firstTime){\n    return msg;\n}else{\n    context.global.firstTime = false;\n}",
+        "func": "if (!context.global.firstTime && msg.statusCode != 401){\n    return msg;\n}else{\n    context.global.firstTime = false;\n}",
         "id": "312457eb.03dcf8",
         "name": "isLoading",
         "noerr": 0,
@@ -457,7 +457,7 @@
         "z": "62906b0d.3c9e8c"
     },
     {
-        "func": "var REPORT_DEFINITION_NAME = \"fidef\";\n\nvar reportingUri = \"\";\n\nObject.keys(context.global.VCAP_SERVICES).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = context.global.VCAP_SERVICES[key][0].credentials.url;\n\t}\n});\n\nfor (var i in msg.payload) {\n    if (msg.payload[i].name === REPORT_DEFINITION_NAME) {\n        msg.url = reportingUri + msg.payload[i].url + \"/reports/pdf\";        \n        // node.log(\"setting msg.url to: \" + msg.url);\n        msg.headers.Cookie = context.global.cookie;\n        return msg;\n    }\n}\n\nnode.error(\"Couldn't find report definition with name \" + REPORT_DEFINITION_NAME);\n",
+        "func": "var REPORT_DEFINITION_NAME = \"fidef\";\n\nvar reportingUri = \"\";\n\nObject.keys(context.global.VCAP_SERVICES).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = context.global.VCAP_SERVICES[key][0].credentials.url;\n\t}\n});\n\nfor (var i in msg.payload) {\n    if (msg.payload[i].name === REPORT_DEFINITION_NAME) {\n        msg.url = reportingUri + msg.payload[i].url + \"/reports/pdf\";        \n        // node.log(\"setting msg.url to: \" + msg.url);\n        msg.headers.Cookie = context.global.cookie;\n        return msg;\n    }\n}\n\nnode.log(\"Couldn't find report definition with name \" + REPORT_DEFINITION_NAME);\n",
         "id": "f23e0a62.472598",
         "name": "Find report definition",
         "noerr": 0,
@@ -518,7 +518,7 @@
         "index": "comap",
         "name": "Query CO data from the db: STDCO",
         "search": "_idx_",
-        "service": "air-pollution-monitor-kpave1-2-cloudant",
+        "service": "air-pollution-monitor-h-19-cloudant",
         "type": "cloudant in",
         "wires": [
             [
@@ -675,7 +675,7 @@
         "name": "",
         "params": "",
         "query": "SELECT COUNT (*) FROM STDCODB;",
-        "service": "air-pollution-monitor-kpave1-2-dashDB",
+        "service": "air-pollution-monitor-h-19-dashDB",
         "type": "dashDB in",
         "wires": [
             [

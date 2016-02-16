@@ -48,9 +48,11 @@ var settings = module.exports = {
 
     // Serve up the welcome page
     httpStatic: path.join(__dirname,"public"),
-
+    
      functionGlobalContext: {
-     	VCAP_SERVICES: JSON.parse(process.env.VCAP_SERVICES)
+    	 VCAP_SERVICES: JSON.parse(process.env.VCAP_SERVICES),
+         FIWARE_USER: process.env.FIWARE_USER,
+    	 FIWARE_PASSWORD: process.env.FIWARE_PASSWORD
      },
 
     storageModule: require("./couchstorage")
@@ -75,6 +77,10 @@ if (process.env.NODE_RED_USERNAME && process.env.NODE_RED_PASSWORD) {
             }
         }
     }
+}
+
+if (process.env.FIWARE_USER && process.env.FIWARE_PASSWORD){
+	settings.adminAuth = {type: "credentials",users: [ ],default: {permissions: "read"}};
 }
 
 settings.couchAppname = VCAP_APPLICATION['application_name'];
