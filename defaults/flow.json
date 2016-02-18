@@ -268,7 +268,7 @@
         "z": "7687703.43b0b9"
     },
     {
-        "func": "token=msg.payload;\ncontext.global.fitoken = token;\ncontext.global.firstTime = true;\nreturn msg;",
+        "func": "token=msg.payload;\nnode.error(msg.statusCode +\";\" + context.global.FIWARE_USER  +\";\" +context.global.fitoken +\";\" +msg.payload);\nif (msg.statusCode === 200 && context.global.FIWARE_USER && context.global.fitoken){\n    context.global.firstTime = true;\n    msg.payload = context.global.fitoken;\n    return msg;\n}\ncontext.global.fitoken = token;\ncontext.global.firstTime = true;\nreturn msg;",
         "id": "cb94a294.e02c48",
         "name": "save token to globals",
         "noerr": 0,
@@ -356,7 +356,7 @@
         "crontab": "",
         "id": "70d229fc.67c4f",
         "name": "Token renewal: EVERY 60 MINUTES",
-        "once": true,
+        "once": false,
         "payload": "",
         "payloadType": "date",
         "repeat": "3600",
