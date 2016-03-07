@@ -27,7 +27,7 @@
         "z": "7687703.43b0b9"
     },
     {
-        "func": "msg.headers = {\n \"X-Auth-Token\": context.global.fitoken,\n \"Accept\": \"application/json\"\n}\nmsg.payload = {\n \"entities\": [\n {\n \"type\": \"santander:device\",\n \"isPattern\": \"true\",\n \"id\": \".*fixed.*\"\n }\n ],\n \"attributes\" : [\"Latitud\", \"Longitud\", \"COConcentration\", \"TimeInstant\"],\n \"restriction\": {\n \"scopes\": [\n {\n \"type\": \"FIWARE::StringQuery\",\n \"value\": \"+COConcentration\"\n }\n ]\n }\n}\nreturn msg;",
+        "func": "msg.headers = {\n \"X-Auth-Token\": context.global.fitoken,\n \"Accept\": \"application/json\"\n}\nmsg.payload = {\n \"entities\": [\n {\n \"type\": \"santander:device\",\n \"isPattern\": \"true\",\n \"id\": \".*fixed.*\"\n }\n ],\n \"attributes\" : [\"Latitud\", \"Longitud\", \"COConcentration\", \"TimeInstant\"],\n \"restriction\": {\n \"scopes\": [\n {\n \"type\": \"FIWARE::StringQuery\",\n \"value\": \"COConcentration\"\n }\n ]\n }\n}\nreturn msg;",
         "id": "aaaf9f6.85a1c6",
         "name": "Prepare FIWARE/Orion Query",
         "noerr": 0,
