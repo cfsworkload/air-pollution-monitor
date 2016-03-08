@@ -58,7 +58,7 @@
         "crontab": "",
         "id": "999e52d8.4b674",
         "name": "Events retrieval: EVERY 10 MINUTES",
-        "once": true,
+        "once": false,
         "payload": "",
         "payloadType": "date",
         "repeat": "600",
@@ -112,7 +112,7 @@
         "name": "Store in Cloudant: STDCO",
         "operation": "insert",
         "payonly": true,
-        "service": "air-pollution-monitor-h-19-cloudant",
+        "service": "air-pollution-monitor-kpave1-x3-cloudant",
         "type": "cloudant out",
         "wires": [],
         "x": 1136,
@@ -144,12 +144,12 @@
     {
         "id": "698042d2.62dad4",
         "name": "",
-        "service": "air-pollution-monitor-h-19-dashDB",
+        "service": "air-pollution-monitor-kpave1-x3-dashDB",
         "table": "STDCODB",
         "type": "dashDB out",
         "wires": [],
-        "x": 1027,
-        "y": 301,
+        "x": 1186,
+        "y": 291,
         "z": "7687703.43b0b9"
     },
     {
@@ -164,8 +164,8 @@
                 "698042d2.62dad4"
             ]
         ],
-        "x": 958,
-        "y": 383,
+        "x": 944,
+        "y": 385,
         "z": "7687703.43b0b9"
     },
     {
@@ -185,16 +185,19 @@
         "z": "7687703.43b0b9"
     },
     {
-        "func": "token = msg.payload.token;\nif (token !== context.global.fitoken){\n    node.log(\"Token: \" + token + \" != \" + context.global.fitoken);\n    msg.statusCode = 401;\n}\nreturn msg;",
+        "func": "var msg1 = null;\nvar msg2 = null;\nif (!msg.payload.token || msg.payload.token !== context.global.fitoken){\n    msg1 = msg;\n    node.warn(\"Authorization token: \" + msg.payload.token + \" != \" + context.global.fitoken);\n    msg1.statusCode = 401;\n}else if (!context.global.firstTime){\n    msg2 = msg;\n    context.global.firstTime = false;\n}\n\nreturn [msg1, msg2];",
         "id": "f2495a48.46a448",
         "name": "validate token",
         "noerr": 0,
-        "outputs": 1,
+        "outputs": "2",
         "type": "function",
         "wires": [
             [
-                "180797db.a7b198",
-                "312457eb.03dcf8"
+                "180797db.a7b198"
+            ],
+            [
+                "aaaf9f6.85a1c6",
+                "180797db.a7b198"
             ]
         ],
         "x": 312,
@@ -206,8 +209,8 @@
         "name": "",
         "type": "http response",
         "wires": [],
-        "x": 555,
-        "y": 39.5,
+        "x": 670.9999847412109,
+        "y": 35.5,
         "z": "7687703.43b0b9"
     },
     {
@@ -222,24 +225,27 @@
                 "1178d2.f7469f2e"
             ]
         ],
-        "x": 128,
-        "y": 461,
+        "x": 123,
+        "y": 407,
         "z": "7687703.43b0b9"
     },
     {
-        "func": "body=msg.payload;\ncontext.global.user = body.user || context.global.FIWARE_USER;\ncontext.global.password = body.password || context.global.FIWARE_PASSWORD;\n\nmsg.headers = {\n \"Accept\": \"application/json\"\n}\n\nmsg.payload = {\n \"username\": context.global.user,\n \"password\": context.global.password\n}\n\n\nreturn msg;",
+        "func": "context.global.user = msg.payload.user || context.global.FIWARE_USER;\ncontext.global.password = msg.payload.password || context.global.FIWARE_PASSWORD;\n\nmsg.headers = {\n    \"Accept\": \"application/json\"\n}\n\nvar msg1 = null;\nvar msg2 = null;\n\nif(context.global.user && context.global.password){\n    msg2 = msg;\n    msg2.payload = {\n        \"username\": context.global.user,\n        \"password\": context.global.password\n    }\n}else{\n    msg1 = msg;\n    msg1.statusCode = 401;\n}\n    \nreturn [msg1, msg2];",
         "id": "1178d2.f7469f2e",
         "name": "save credentials to globals",
         "noerr": 0,
-        "outputs": 1,
+        "outputs": "2",
         "type": "function",
         "wires": [
+            [
+                "8a1d8912.3722a"
+            ],
             [
                 "35b6afab.ae1c7"
             ]
         ],
-        "x": 354,
-        "y": 462.5,
+        "x": 175,
+        "y": 489.5,
         "z": "7687703.43b0b9"
     },
     {
@@ -268,7 +274,7 @@
         "z": "7687703.43b0b9"
     },
     {
-        "func": "token=msg.payload;\nnode.error(msg.statusCode +\";\" + context.global.FIWARE_USER  +\";\" +context.global.fitoken +\";\" +msg.payload);\nif (msg.statusCode === 200 && context.global.FIWARE_USER && context.global.fitoken){\n    context.global.firstTime = true;\n    msg.payload = context.global.fitoken;\n    return msg;\n}\ncontext.global.fitoken = token;\ncontext.global.firstTime = true;\nreturn msg;",
+        "func": "token=msg.payload;\nif (msg.statusCode === 200 && context.global.fitoken){\n    context.global.firstTime = true;\n    msg.payload = context.global.fitoken;\n    return msg;\n}\ncontext.global.fitoken = token;\ncontext.global.firstTime = true;\nreturn msg;",
         "id": "cb94a294.e02c48",
         "name": "save token to globals",
         "noerr": 0,
@@ -286,7 +292,7 @@
         "z": "7687703.43b0b9"
     },
     {
-        "active": true,
+        "active": false,
         "complete": "payload",
         "console": "false",
         "id": "cf56d33.159c53",
@@ -295,22 +301,6 @@
         "wires": [],
         "x": 902,
         "y": 484.5,
-        "z": "7687703.43b0b9"
-    },
-    {
-        "func": "if (!context.global.firstTime && msg.statusCode != 401){\n    return msg;\n}else{\n    context.global.firstTime = false;\n}",
-        "id": "312457eb.03dcf8",
-        "name": "isLoading",
-        "noerr": 0,
-        "outputs": 1,
-        "type": "function",
-        "wires": [
-            [
-                "aaaf9f6.85a1c6"
-            ]
-        ],
-        "x": 430,
-        "y": 124,
         "z": "7687703.43b0b9"
     },
     {
@@ -457,7 +447,7 @@
         "z": "62906b0d.3c9e8c"
     },
     {
-        "func": "var REPORT_DEFINITION_NAME = \"fidef\";\n\nvar reportingUri = \"\";\n\nObject.keys(context.global.VCAP_SERVICES).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = context.global.VCAP_SERVICES[key][0].credentials.url;\n\t}\n});\n\nfor (var i in msg.payload) {\n    if (msg.payload[i].name === REPORT_DEFINITION_NAME) {\n        msg.url = reportingUri + msg.payload[i].url + \"/reports/pdf\";        \n        // node.log(\"setting msg.url to: \" + msg.url);\n        msg.headers.Cookie = context.global.cookie;\n        return msg;\n    }\n}\n\nnode.log(\"Couldn't find report definition with name \" + REPORT_DEFINITION_NAME);\n",
+        "func": "var REPORT_DEFINITION_NAME = \"fidef\";\n\nvar reportingUri = \"\";\n\nObject.keys(context.global.VCAP_SERVICES).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = context.global.VCAP_SERVICES[key][0].credentials.url;\n\t}\n});\n\nfor (var i in msg.payload) {\n    if (msg.payload[i].name === REPORT_DEFINITION_NAME) {\n        msg.url = reportingUri + msg.payload[i].url + \"/reports/pdf\";        \n        // node.log(\"setting msg.url to: \" + msg.url);\n        msg.headers.Cookie = context.global.cookie;\n        return msg;\n    }\n}\n\nnode.warn(\"Couldn't find report definition with name \" + REPORT_DEFINITION_NAME);\n",
         "id": "f23e0a62.472598",
         "name": "Find report definition",
         "noerr": 0,
@@ -518,7 +508,7 @@
         "index": "comap",
         "name": "Query CO data from the db: STDCO",
         "search": "_idx_",
-        "service": "air-pollution-monitor-h-19-cloudant",
+        "service": "air-pollution-monitor-kpave1-x3-cloudant",
         "type": "cloudant in",
         "wires": [
             [
@@ -623,7 +613,7 @@
         "z": "62906b0d.3c9e8c"
     },
     {
-        "func": "node.log(\"LENGTH: \" + msg.payload.length);\nmsg.payload = msg.payload['1'];\nreturn msg;",
+        "func": "msg.payload = msg.payload['1'];\nreturn msg;",
         "id": "b7e247a6.fb01",
         "name": "log length",
         "noerr": 0,
@@ -675,7 +665,7 @@
         "name": "",
         "params": "",
         "query": "SELECT COUNT (*) FROM STDCODB;",
-        "service": "air-pollution-monitor-h-19-dashDB",
+        "service": "air-pollution-monitor-kpave1-x3-dashDB",
         "type": "dashDB in",
         "wires": [
             [
@@ -703,7 +693,7 @@
         "z": "62906b0d.3c9e8c"
     },
     {
-        "func": "// cookies = msg.headers['set-cookie'];\nvar cookieJar = \"\";\nvar ersHeaders = msg.headers;\nfor (var headerName in ersHeaders) {\n    var headerValue = ersHeaders[headerName];\n    if (headerName === 'set-cookie') {\n\t    for (idx = 0; idx < headerValue.length; idx++) {\t\t\t\t\t\t\t\n\t\t    var cookie = headerValue[idx].substring(0, headerValue[idx].indexOf(';') + 1);\n\t\t\tcookieJar += cookie;\n\t\t}\n\t}\n}\n\ncontext.global.cookie = cookieJar;\n\nvar services = context.global.VCAP_SERVICES\nvar reportingUri = \"\";\n\nObject.keys(services).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tvar credentials = services[key][0]['credentials'];\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = credentials['url'];\n\t}\n});\n\nmsg.url = reportingUri + \"/ers/v1/definitions\";\nmsg.headers = {\"Cookie\": cookieJar};\n\nreturn msg;",
+        "func": "var cookieJar = \"\";\nvar ersHeaders = msg.headers;\nfor (var headerName in ersHeaders) {\n    var headerValue = ersHeaders[headerName];\n    if (headerName === 'set-cookie') {\n\t    for (idx = 0; idx < headerValue.length; idx++) {\t\t\t\t\t\t\t\n\t\t    var cookie = headerValue[idx].substring(0, headerValue[idx].indexOf(';') + 1);\n\t\t\tcookieJar += cookie;\n\t\t}\n\t}\n}\n\ncontext.global.cookie = cookieJar;\n\nvar services = context.global.VCAP_SERVICES\nvar reportingUri = \"\";\n\nObject.keys(services).forEach(function(key) {\n\tvar name = key.toString().toUpperCase();\n\tvar credentials = services[key][0]['credentials'];\n\tif (name.indexOf('ERSERVICE') !== -1) {\n\t\treportingUri = credentials['url'];\n\t}\n});\n\nmsg.url = reportingUri + \"/ers/v1/definitions\";\nmsg.headers = {\"Cookie\": cookieJar};\n\nreturn msg;",
         "id": "97f00848.680ff8",
         "name": "Get definitions",
         "noerr": 0,
